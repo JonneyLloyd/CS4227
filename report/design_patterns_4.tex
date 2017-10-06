@@ -1,0 +1,29 @@
+\chapter{Design Patterns}
+
+\section{Creational}
+Creational design patterns are design patterns that deal with object creation
+mechanisms, trying to create objects in a manner suitable to the situation. The basic form of object
+creation could result in design problems or added complexity to the design. Creational design patterns
+solve this problem by controlling this object creation.
+
+\subsection{Abstract Factory}
+The Abstract Factory design pattern adds another layer of abstraction to the Factory design pattern.
+The Abstract Factory provides us with a framework that allows us to create families of related or
+dependent objects without specifying their concrete classes. So at runtime, the abstract factory is
+coupled with any desired factory which can create objects of desired type.
+
+\section{Structural}
+Structural design patterns are design patterns that ease the design by identifying a simple way to
+realize relationships between entities.
+
+\subsection{Bridge}
+The Bridge design pattern allows us to separate the abstraction from the implementation, thus
+allowing us to hide the implementation from the client and only providing the abstraction.
+Use when:
+\begin{itemize}
+	\item we want run-time binding of the implementation
+	\item we have a collection of related classes resulting from a coupled interface and numerous
+	      implementations
+	\item we want to share an implementation among multiple objects
+	\item we need to map orthogonal class hierarchies
+\end{itemize}
