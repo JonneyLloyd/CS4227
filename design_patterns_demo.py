@@ -32,9 +32,9 @@ def interceptor_demo():
 
     #client side
     interceptor = ConcreteInterceptor()
+    dispatcher.register(interceptor)
 
     #framework side
-    dispatcher.register(interceptor)
     dispatcher.callback(context)
 
 
