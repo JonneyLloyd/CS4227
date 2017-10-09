@@ -1,6 +1,6 @@
 from design_patterns.abstract_factory import ShapeFactory
 from design_patterns.bridge import Circle, RedCircle, GreenCircle
-from design_patterns.interceptor import Interceptor, ContextObject, Dispatcher, ConcreteInterceptor, ConcreteContext
+from design_patterns.interceptor import Dispatcher, ConcreteInterceptor, ConcreteContext
 
 
 def main() -> None:
