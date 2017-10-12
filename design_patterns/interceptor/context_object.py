@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod
 class ContextObject(ABC):
 
     @abstractmethod
-    def set_value(self) -> None:
+    def set_value(self, value: int) -> None:
         pass
 
     @abstractmethod
