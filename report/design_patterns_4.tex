@@ -27,3 +27,30 @@ Use when:
 	\item we want to share an implementation among multiple objects
 	\item we need to map orthogonal class hierarchies
 \end{itemize}
+
+\subsection{Composite}
+The composite pattern is used to group objects into tree structures to represent whole-part hierachies. This pattern lets clients treat individual objects and compositions of objects uniformly. \cite{sourcemaking}
+
+\section{Behavioral}
+In software engineering, behavioral design patterns are design patterns that identify common communication patterns between objects and realize these patterns. By doing so, these patterns increase flexibility in carrying out this communication. \cite{sourcemaking}
+
+\subsection{Memento}
+The memento pattern allows us to capture and externalise an objects state so that the object can be returned to this state later on.
+Steps:
+\begin{itemize}
+	\item Ask originator to create and return a memento.
+	\item Save the memento.
+	\item Update the state of the originator.
+	\item Retrieve a memento from storage.
+	\item Ask originator to recreate its previous state using this memento.
+\end{itemize}
+
+\subsection{State}
+The state pattern allows an object to change it's behaviour when it changes it's internal state. The main object is called the context and this is the object that keeps the state. When the state needs to be changed the state currently being ran can update that state of the context.
+
+\subsection{Visitor}
+The visitors purpose is to abstract functionality that can be applied to an aggregate hierarchy of \'Element\' objects. \cite{sourcemaking} This allows the operations to be put into their own class which stops polluting the objects class.
+\begin{itemize}
+	\item The visitor asks the element to accept it's visit.
+	\item The element accepts and passes itself to the visitors visit method.
+\end{itemize}
