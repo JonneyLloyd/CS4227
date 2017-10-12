@@ -1,6 +1,6 @@
 from design_patterns.abstract_factory import ShapeFactory
 from design_patterns.bridge import Circle, RedCircle, GreenCircle
-from design_patterns.interceptor import Dispatcher, ConcreteInterceptor, ConcreteContext
+from design_patterns.interceptor import Dispatcher, ConcreteInterceptor, Context
 from design_patterns.memento import Originator
 from design_patterns.composite import Ellipse, CompositeGraphic
 from design_patterns.state import ConcreteContext
@@ -35,7 +35,7 @@ def bridge_demo() -> None:
 def interceptor_demo():
     #framework side
     dispatcher = Dispatcher()
-    context = ConcreteContext()
+    context = Context()
 
     #client side
     interceptor = ConcreteInterceptor()

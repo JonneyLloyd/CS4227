@@ -1,6 +1,6 @@
 from .context_object import ContextObject
 
-class ConcreteContext(ContextObject):
+class Context(ContextObject):
 
 
     def set_value(self, value: int) -> None:
