@@ -1,4 +1,4 @@
-from framework.encryption.encryptor import Encryptor
+from framework.encryption import Encryptor
 from cryptography.fernet import Fernet
 
 

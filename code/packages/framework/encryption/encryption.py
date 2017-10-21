@@ -1,4 +1,4 @@
-from framework.encryption.encryptor import Encryptor
+from framework.encryption import Encryptor
 
 
 class Encryption:
@@ -10,8 +10,8 @@ class Encryption:
     def encryptor(self) -> Encryptor:
         return self._encryptor
 
-    def encrypt(self, byte_array: str) -> bytes:
-        return self._encryptor.encrypt(byte_array)
+    def encrypt(self, text: str) -> bytes:
+        return self._encryptor.encrypt(text)
 
     def decrypt(self, _bytes: bytes) -> str:
         return self._encryptor.decrypt(_bytes)
