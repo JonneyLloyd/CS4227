@@ -6,6 +6,7 @@
 # Framework
 Flask==0.12.2
 Flask-RESTful==0.3.6
+cryptography==2.1.2
 
 # Testing
 nose2==0.6.5
