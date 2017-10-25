@@ -1,15 +1,59 @@
 import functools
 import inspect
 import typing
-from typing import Type, Dict, Tuple, Callable
+from typing import Type, Optional, Dict, Tuple, Callable, Generator
+from contextlib import contextmanager
+
+
+def _get_args(func: Callable) -> Tuple:
+    """
+    Get the required arguments, including default
+    """
+    args, *_ = inspect.getfullargspec(func)
+    return tuple(args)
+
+
+def _get_required_args(func: Callable) -> Tuple:
+    """
+    Get the required, non default arguments
+    """
+    args, varargs, varkw, defaults, *_ = inspect.getfullargspec(func)
+    if defaults:
+        args = args[:-len(defaults)]
+    return tuple(args)
+
+
+def _params_match_signature(func: Callable, func_types: Tuple[Type, ...], param_types: Tuple[Type, ...]) -> bool:
+    """
+    Determine if func with non optional parameters func_types can be parameterised with param_types.
+    """
+    strip_self: Callable[[Tuple], Tuple] = lambda t: tuple([e for e in t if e != 'self'])
+
+    # Lengths don't match
+    if not (len(strip_self(_get_required_args(func))) <= len(param_types) <= len(strip_self(_get_args(func)))):
+        return False
+
+    # Types match
+    return all(issubclass(p, t) for t, p in zip(func_types, param_types))
 
 
 registry: Dict[str, Callable] = {}
 
+
+@contextmanager
+def registry_test_context() -> Generator:
+    """A context manager for resetting between unit tests"""
+    global registry
+    registry = {}
+
+    yield
+
+    registry = {}
+
+
 def overload(func: Callable) -> Callable:
     """Decorator to allow overloading parameters of different types in python.
 
-    Only use when overloading with the concrete type that will be expected as interfaces are not yet supported.
     Be careful with this as python duck typing us awkward and this may not account for everything.
 
     Useful for the visitor pattern.
@@ -71,7 +115,6 @@ def overload(func: Callable) -> Callable:
 
 
             >>> x = Test()
-
             >>> x.test(B())
             'B'
             >>> x.test(C())
@@ -82,25 +125,22 @@ def overload(func: Callable) -> Callable:
         raise TypeError("Not type annotations found {}".format(func))
 
     param_types: Dict[str, type] = {k: v for k, v in func.__annotations__.items() if k != 'return'}
-    # Convert to simple types...
-    temp: Dict[str, Type] = {}
-    for k, v in param_types.items():
-        if isinstance(v, typing.Generic.__class__):
-            v = v.__extra__  # type: ignore
-        temp[k] = v
-    # Order the types according to parameter list (excluding self)
-    types: Tuple[Type, ...] = tuple([temp[k] for k in inspect.signature(func).parameters.keys() if k != 'self'])
+    types: Tuple[Type, ...] = tuple([param_types[k] for k in _get_required_args(func) if k != 'self'])
 
-    name: str = func.__name__
+    name: str = func.__module__ + "." + func.__name__
+    print(name)
     ow = registry.get(name)
     if ow is None:
         # Create a decorated method since it doesn't exist already
         @functools.wraps(func)
-        def wrapper(self: Callable, *args: Tuple) -> Callable:  # TODO generics/collections and interface support
+        def wrapper(self: Callable, *args: Tuple) -> Callable:  # TODO generics/collections and function support
             types: Tuple[Type, ...] = tuple(arg.__class__ for arg in args)
 
             # Find signature with matching parameter types
-            func: Callable = wrapper.typemap.get(types)  # type: ignore
+            func: Optional[Callable] = None
+            for k, v in wrapper.typemap.items():
+                if _params_match_signature(v, k, types):
+                    func = v
             if func is None:
                 raise TypeError(f"'{name}' method has no matching signature for '{types}'")
 

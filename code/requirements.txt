@@ -1,0 +1,11 @@
+# Linting (optional)
+#mypy==0.530
+
+# Client
+
+# Framework
+Flask==0.12.2
+Flask-RESTful==0.3.6
+
+# Testing
+nose2==0.6.5
