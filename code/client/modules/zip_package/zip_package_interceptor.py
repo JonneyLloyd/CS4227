@@ -33,7 +33,7 @@ class ZipPackageInterceptor():
         return isValidPath
 
     def compressToZip(self) -> None:
-            make_archive(
+        make_archive(
             self.packagePath,
             'zip',
             root_dir=self.buildRoot,
@@ -57,6 +57,6 @@ class ZipPackageInterceptor():
         make_archive(
             self.packagePath,
             'tar',
-            root_dir = self.buildRoot,
-            base_dir = self.buildName)
+            root_dir=self.buildRoot,
+            base_dir=self.buildName)
 

@@ -1,7 +1,7 @@
 import os.path
 
 
-class LocalSourceInterceptor():
+class LocalSourceInterceptor:
 
     def __init__(self, sourcePath: str) -> None:
         self.sourcePath = sourcePath
