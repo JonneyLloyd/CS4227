@@ -1,5 +1,6 @@
 from design_patterns.abstract_factory import ShapeFactory
 from design_patterns.bridge import Circle, RedCircle, GreenCircle
+from design_patterns.interceptor import Dispatcher, ConcreteInterceptor, Context
 from design_patterns.memento import Originator
 from design_patterns.composite import Ellipse, CompositeGraphic
 from design_patterns.state import ConcreteContext
@@ -8,6 +9,7 @@ from design_patterns.visitor import ConcreteElement, ConcreteVisitor
 def main() -> None:
     factory_demo()
     bridge_demo()
+    interceptor_demo()
     memento_demo()
     composite_demo()
     state_demo()
@@ -29,6 +31,18 @@ def bridge_demo() -> None:
 
     red_circle.draw()
     green_circle.draw()
+
+def interceptor_demo():
+    #framework side
+    dispatcher = Dispatcher()
+    context = Context()
+
+    #client side
+    interceptor = ConcreteInterceptor()
+    dispatcher.register(interceptor)
+
+    #framework side
+    dispatcher.callback(context)
 
 def memento_demo() -> None:
     saved_states = []
