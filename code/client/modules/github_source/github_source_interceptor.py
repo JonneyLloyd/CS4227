@@ -7,13 +7,15 @@ from code.client.modules.github_source import SourceInterceptor
 class GithubSourceInterceptor(SourceInterceptor):
     def __init__(self, pre_build_path: str, git_user: str, git_repo: str,
                  git_branch: str, ssh_key_path: str):
-        """ Args:
-                pre_build_path: Absolute Path to directory to clone repo into
-                                e.g. /home/deployment/pre_build/
-                git_user: Username of git repo owner
-                git_repo: Name of git repository
-                git_branch: Branch of repo to clone
-                ssh_key_path: Absolute path to SSH private key """
+        """
+        Clone a source from remote git repository for pre-build
+        Args:
+            pre_build_path: Absolute Path to directory to clone repo into
+                            e.g. /home/deployment/pre_build/
+            git_user: Username of git repo owner
+            git_repo: Name of git repository
+            git_branch: Branch of repo to clone
+            ssh_key_path: Absolute path to SSH private key """
         self._pre_build_path = pre_build_path
         self._git_user = git_user
         self._git_repo = git_repo

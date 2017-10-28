@@ -8,13 +8,15 @@ class ZipPackageInterceptor(PackageInterceptor):
 
     def __init__(self, build_root: str, build_name: str,
                  package_path: str, archive_format: str) -> None:
-        """ Args:
-                build_root: Absolute path to root directory of build
-                            e.g. '/home/deployment/build_dir/'
-                build_name: Name of build e.g. 'python_build_v121'
-                package_path: Absolute path to archived package
-                              e.g. '/home/deployment/package_dir/zip_package_v121'
-                archive_format: Format for archiving/compression e.g. 'zip' """
+        """
+        Package up build with archive/compression
+        Args:
+            build_root: Absolute path to root directory of build
+                        e.g. '/home/deployment/build_dir/'
+            build_name: Name of build e.g. 'python_build_v121'
+            package_path: Absolute path to archived package
+                          e.g. '/home/deployment/package_dir/zip_package_v121'
+            archive_format: Format for archiving/compression e.g. 'zip' """
         self._build_root = build_root
         self._build_name = build_name
         self._package_path = package_path

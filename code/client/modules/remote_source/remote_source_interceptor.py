@@ -8,6 +8,15 @@ class RemoteSourceInterceptor(SourceInterceptor):
 
     def __init__(self, remote_path: str, pre_build_path: str, remote_username: str,
                  remote_hostname: str, ssh_key_path: str) -> None:
+        """
+        Copy a remote source to a local directory for pre-build
+        Args:
+            remote_path: Absolute path to remote source directory
+            pre_build_path: Absolute path to local directory in which to copy remote source
+            remote_username: Username on remote host
+            remote_hostname: Hostname of remote host
+            ssh_key_path: Absolute path to SSH private key
+        """
         self._remote_path = remote_path
         self._pre_build_path = pre_build_path
         self._remote_username = remote_username

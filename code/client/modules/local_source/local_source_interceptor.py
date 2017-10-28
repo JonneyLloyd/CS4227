@@ -7,6 +7,12 @@ from code.client.modules.local_source import SourceInterceptor
 class LocalSourceInterceptor(SourceInterceptor):
 
     def __init__(self, source_path: str, pre_build_path: str) -> None:
+        """
+        Copy source from local source to local directory for pre-build
+        Args:
+            source_path: Absolute path to local source directory
+            pre_build_path: Absolute path to directory in which to copy source
+        """
         self._source_path = source_path
         self._pre_build_path = pre_build_path
         self._copy_command = 'cp -r ' + self._source_path + ' ' + self._pre_build_path
