@@ -1,40 +1,62 @@
-import os
+import os.path
+import spur
+import logging
+from code.client.modules.github_source import SourceInterceptor
 
 
-class GithubSourceInterceptor:
+class GithubSourceInterceptor(SourceInterceptor):
+    def __init__(self, pre_build_path: str, git_user: str, git_repo: str,
+                 git_branch: str, ssh_key_path: str):
+        """ Args:
+                pre_build_path: Absolute Path to directory to clone repo into
+                                e.g. /home/deployment/pre_build/
+                git_user: Username of git repo owner
+                git_repo: Name of git repository
+                git_branch: Branch of repo to clone
+                ssh_key_path: Absolute path to SSH private key """
+        self._pre_build_path = pre_build_path
+        self._git_user = git_user
+        self._git_repo = git_repo
+        self._git_branch = git_branch
+        self._ssh_key_path = ssh_key_path
+        self._git_command: str = 'git clone ssh://git@github.com:' + \
+                                 self._git_user + "/" + self._git_repo + \
+                                 ' -b ' + self._git_branch
 
-    """ Input: Path to clone repo into
-               Url of git repo
-               Branch of repo to pull
-               SSH username
-               SSH password """
-    def __init__(self, localPath: str, git_url: str, git_branch: str,
-                 ssh_user_host: str, ssh_password: str):
-        self.localPath = localPath
-        self.git_url = git_url
-        self.git_branch = git_branch
-        self.git_command: str = 'git clone ' + self.git_url + ' -b ' + self.git_branch
-        self.ssh_user_host = ssh_user_host
-        self.ssh_pass_command: str = 'sshpass -f ' + self.ssh_pass_file + ' ssh ' + self.ssh_user_host
-        self.ssh_password = ssh_password
+    def on_source(self, context: SourceContext):
+        if self.__validate_path(self._pre_build_path):
+            if self.__clone_repo():
+                logging.info('Success: Clone source repository')
+            else:
+                logging.error('Fail: Clone source repository')
 
-    def validateLocalPath(self) -> bool:
-        errorMsg = 'ERROR: Could not locate local path: '
-        isValidPath = True
-        if os.path.isdir(self.localPath):
-            print('Located source path: ' + self.localPath)
+    def __validate_path(self, path: str) -> bool:
+        is_valid_path = True
+        if os.path.isdir(self._source_path):
+            logging.info('Located ' + path.__name__ + ": " + path)
         else:
-            errorMsg += self.localPath
-            print(errorMsg)
-            isValidPath = False
-        return isValidPath
+            logging.error('Could not locate ' + path.__name__ + ": " + path)
+            is_valid_path = False
 
-    def cloneRepo(self) -> None:
-        os.system(self.ssh_pass_command)
-        os.chdir(self.localPath)
-        os.system(self.git_command)
+        return is_valid_path
 
-        # handle errors TODO
+    def __clone_repo(self) -> bool:
+        clone_success = True
+        local_shell = spur.LocalShell()
 
+        result = local_shell.run('ssh-add ' + self._ssh_key_path)
+        if result.return_code != 0:
+            logging.error('ssh-add failed:\n' + result.stderr_output)
+            clone_success = False
+        else:
+            logging.info('ssh-add succeeded:\n' + result.output)
 
+        if clone_success:
+            result = local_shell.run(self._git_command)
+            if result.return_code != 0:
+                logging.error('Git clone failed:\n' + result.stderr_output)
+                clone_success = False
+            else:
+                logging.info('Git clone succeeded:\n' + result.output)
 
+        return clone_success
