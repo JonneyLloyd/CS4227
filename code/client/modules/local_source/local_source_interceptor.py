@@ -1,7 +1,7 @@
 import os.path
 import logging
 import spur
-from code.client.modules.local_source import SourceInterceptor
+from framework.interceptor import SourceInterceptor
 
 
 class LocalSourceInterceptor(SourceInterceptor):
@@ -18,14 +18,14 @@ class LocalSourceInterceptor(SourceInterceptor):
         self._copy_command = 'cp -r ' + self._source_path + ' ' + self._pre_build_path
 
     def on_source(self, context: SourceContext):
-        if self.__validate_path(self._pre_build_path) and \
-           self.__validate_path(self._source_path):
-            if self.__copy_local_source():
+        if self._validate_path(self._pre_build_path) and \
+           self._validate_path(self._source_path):
+            if self._copy_local_source():
                 logging.info('Success: Copy local source')
             else:
                 logging.error('Fail: Copy local source')
 
-    def __validate_path(self, path: str) -> bool:
+    def _validate_path(self, path: str) -> bool:
         is_valid_path = True
         if os.path.isdir(self._source_path):
             logging.info('Located ' + path.__name__ + ": " + path)
@@ -35,7 +35,7 @@ class LocalSourceInterceptor(SourceInterceptor):
 
         return is_valid_path
 
-    def __copy_local_source(self) -> bool:
+    def _copy_local_source(self) -> bool:
         copy_success = True
         local_shell = spur.LocalShell()
 

@@ -1,4 +1,4 @@
-from code.client.modules.python_build import BuildInterceptor
+from framework.interceptor import BuildInterceptor
 
 
 class PythonBuildInterceptor(BuildInterceptor):

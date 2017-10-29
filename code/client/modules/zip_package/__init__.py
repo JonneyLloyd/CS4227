@@ -1,1 +1,1 @@
-from code.packages.framework.interceptor.package_interceptor import PackageInterceptor
+from .zip_package_interceptor import ZipPackageInterceptor

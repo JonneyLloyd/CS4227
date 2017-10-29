@@ -1,1 +1,1 @@
-from code.packages.framework.interceptor.source_interceptor import SourceInterceptor
+from .remote_source_interceptor import RemoteSourceInterceptor

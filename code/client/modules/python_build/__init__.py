@@ -1,1 +1,1 @@
-from code.packages.framework.interceptor.build_interceptor import BuildInterceptor
+from .python_build_interceptor import PythonBuildInterceptor

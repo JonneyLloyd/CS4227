@@ -1,4 +1,4 @@
-from code.client.modules.docker_package import PackageInterceptor
+from framework.interceptor import PackageInterceptor
 
 
 class DockerPackageInterceptor(PackageInterceptor):

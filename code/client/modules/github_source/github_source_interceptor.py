@@ -1,7 +1,7 @@
 import os.path
 import spur
 import logging
-from code.client.modules.github_source import SourceInterceptor
+from framework.interceptor import SourceInterceptor
 
 
 class GithubSourceInterceptor(SourceInterceptor):
@@ -26,13 +26,13 @@ class GithubSourceInterceptor(SourceInterceptor):
                                  ' -b ' + self._git_branch
 
     def on_source(self, context: SourceContext):
-        if self.__validate_path(self._pre_build_path):
-            if self.__clone_repo():
+        if self._validate_path(self._pre_build_path):
+            if self._clone_repo():
                 logging.info('Success: Clone source repository')
             else:
                 logging.error('Fail: Clone source repository')
 
-    def __validate_path(self, path: str) -> bool:
+    def _validate_path(self, path: str) -> bool:
         is_valid_path = True
         if os.path.isdir(self._source_path):
             logging.info('Located ' + path.__name__ + ": " + path)
@@ -42,7 +42,7 @@ class GithubSourceInterceptor(SourceInterceptor):
 
         return is_valid_path
 
-    def __clone_repo(self) -> bool:
+    def _clone_repo(self) -> bool:
         clone_success = True
         local_shell = spur.LocalShell()
 

@@ -1,7 +1,7 @@
 import os.path
 import logging
 from shutil import make_archive
-from code.client.modules.zip_package import PackageInterceptor
+from framework.interceptor import PackageInterceptor
 
 
 class ZipPackageInterceptor(PackageInterceptor):
@@ -23,16 +23,16 @@ class ZipPackageInterceptor(PackageInterceptor):
         self._archive_format = archive_format
         self._build_path = self._build_root + self._build_name
 
-    def on_build(self) -> None:
-        if self.__validate_path(self._build_path) and \
-           self.__validate_path(self._package_path):
+    def on_package(self, context: PackageContext) -> None:
+        if self._validate_path(self._build_path) and \
+           self._validate_path(self._package_path):
 
-            if self.__archive_format_command(self._archive_format):
+            if self._archive_format_command(self._archive_format):
                 logging.info('Success: Packaged build')
             else:
                 logging.error('Fail: Packaging build')
 
-    def __validate_path(self, path: str) -> bool:
+    def _validate_path(self, path: str) -> bool:
         is_valid_path = True
         if os.path.isdir(self._source_path):
             logging.info('Located ' + path.__name__ + ": " + path)
@@ -42,13 +42,13 @@ class ZipPackageInterceptor(PackageInterceptor):
 
         return is_valid_path
 
-    def __archive_format_command(self, x) -> bool:
+    def _archive_format_command(self, x) -> bool:
         found_format = True
         archive_dict = {
-            'zip': self.__archive('zip'),  # compression
-            'gztar': self.__archive('gztar'),  # compression
-            'xztar': self.__archive('xztar'),  # compression
-            'tar': self.__archive('tar')  # archive only
+            'zip': self._archive('zip'),  # compression
+            'gztar': self._archive('gztar'),  # compression
+            'xztar': self._archive('xztar'),  # compression
+            'tar': self._archive('tar')  # archive only
         }
         if x in archive_dict.keys():
             archive_dict[x]
@@ -58,10 +58,9 @@ class ZipPackageInterceptor(PackageInterceptor):
 
         return found_format
 
-    def __archive(self, format: str) -> None:
+    def _archive(self, format: str) -> None:
         make_archive(
             self._package_path,
             format,
             root_dir=self._build_root,
             base_dir=self._build_name)
-

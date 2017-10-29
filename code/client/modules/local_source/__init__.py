@@ -1,1 +1,1 @@
-from code.packages.framework.interceptor.source_interceptor import SourceInterceptor
+from .local_source_interceptor import LocalSourceInterceptor

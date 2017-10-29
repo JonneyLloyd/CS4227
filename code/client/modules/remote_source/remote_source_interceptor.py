@@ -1,7 +1,7 @@
 import os.path
 import logging
 import spur
-from code.client.modules.remote_source import SourceInterceptor
+from framework.interceptor import SourceInterceptor
 
 
 class RemoteSourceInterceptor(SourceInterceptor):
@@ -26,15 +26,15 @@ class RemoteSourceInterceptor(SourceInterceptor):
                             + ':' + self._remote_path + " " + self._pre_build_path
 
     def on_source(self, context: SourceContext):
-        if self.__validate_path(self._pre_build_path) and \
-           self.__validate_path(self._ssh_key_path) and \
-           self.__validate_remote_path(self._remote_path):
-            if self.__copy_remote_source():
+        if self._validate_path(self._pre_build_path) and \
+           self._validate_path(self._ssh_key_path) and \
+           self._validate_remote_path(self._remote_path):
+            if self._copy_remote_source():
                 logging.info('Success: Copy remote source')
             else:
                 logging.error('Fail: Copy remote source')
 
-    def __validate_path(self, path: str) -> bool:
+    def _validate_path(self, path: str) -> bool:
         is_valid_path = True
         if os.path.isdir(self._source_path):
             logging.info('Located ' + path.__name__ + ": " + path)
@@ -44,7 +44,7 @@ class RemoteSourceInterceptor(SourceInterceptor):
 
         return is_valid_path
 
-    def __validate_remote_path(self) -> bool:
+    def _validate_remote_path(self) -> bool:
         is_valid_path = True
         remote_shell = spur.SshShell(
             hostname=self._remote_hostname,
@@ -60,7 +60,7 @@ class RemoteSourceInterceptor(SourceInterceptor):
 
         return is_valid_path
 
-    def __copy_remote_source(self) -> bool:
+    def _copy_remote_source(self) -> bool:
         copy_success = True
         local_shell = spur.LocalShell()
 
