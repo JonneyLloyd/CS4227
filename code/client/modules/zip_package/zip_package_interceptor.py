@@ -1,6 +1,7 @@
 import os.path
 import logging
 from shutil import make_archive
+from framework.context import PackageContext
 from framework.interceptor import PackageInterceptor
 
 
@@ -44,14 +45,14 @@ class ZipPackageInterceptor(PackageInterceptor):
 
     def _archive_format_command(self, x) -> bool:
         found_format = True
-        archive_dict = {
-            'zip': self._archive('zip'),  # compression
-            'gztar': self._archive('gztar'),  # compression
-            'xztar': self._archive('xztar'),  # compression
-            'tar': self._archive('tar')  # archive only
+        archive_list = {
+            'zip',  # compression
+            'gztar',  # compression
+            'xztar',  # compression
+            'tar'  # archive only
         }
-        if x in archive_dict.keys():
-            archive_dict[x]
+        if x in archive_list:
+            self._archive(x)
         else:
             logging.error('Invalid archive format supplied')
             found_format = False

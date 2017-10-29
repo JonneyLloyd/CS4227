@@ -2,6 +2,7 @@
 #mypy==0.530
 
 # Client
+spur==0.3.20
 
 # Framework
 Flask==0.12.2

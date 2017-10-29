@@ -1,9 +1,7 @@
 from ..pipeline import PipelineBase
 
 
-class SourceContext:
+class PackageContext:
 
     def __init__(self, pipeline: PipelineBase) -> None:
         self._pipeline = pipeline
-
-    # TODO

@@ -1,6 +1,7 @@
 import os.path
 import logging
 import spur
+from framework.context import SourceContext
 from framework.interceptor import SourceInterceptor
 
 
