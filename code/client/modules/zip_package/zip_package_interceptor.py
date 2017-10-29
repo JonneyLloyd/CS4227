@@ -45,10 +45,10 @@ class ZipPackageInterceptor(PackageInterceptor):
     def __archive_format_command(self, x) -> bool:
         found_format = True
         archive_dict = {
-            'zip': self.__compress_to_zip(),
-            'gztar': self.__compress_to_gztar(),
-            'xztar': self.__compress_to_xztar(),
-            'tar': self.__compress_to_zip()
+            'zip': self.__archive('zip'),  # compression
+            'gztar': self.__archive('gztar'),  # compression
+            'xztar': self.__archive('xztar'),  # compression
+            'tar': self.__archive('tar')  # archive only
         }
         if x in archive_dict.keys():
             archive_dict[x]
@@ -58,30 +58,10 @@ class ZipPackageInterceptor(PackageInterceptor):
 
         return found_format
 
-    def __compress_to_zip(self) -> None:
+    def __archive(self, format: str) -> None:
         make_archive(
             self._package_path,
-            'zip',
+            format,
             root_dir=self._build_root,
             base_dir=self._build_name)
 
-    def __compress_to_gztar(self) -> None:
-        make_archive(
-            self._package_path,
-            'gztar',
-            root_dir=self._build_root,
-            base_dir=self._build_name)
-
-    def __compress_to_xztar(self) -> None:
-        make_archive(
-            self._package_path,
-            'xztar',
-            root_dir=self._build_root,
-            base_dir=self._build_name)
-
-    def __archive_to_tar(self) -> None:
-        make_archive(
-            self._package_path,
-            'tar',
-            root_dir=self._build_root,
-            base_dir=self._build_name)
