@@ -5,6 +5,13 @@ from typing import Type, Optional, Dict, Tuple, Callable, Generator
 from contextlib import contextmanager
 
 
+def _strip_self(args: Tuple) -> Tuple:
+    """
+    Filter out 'self' and 'cls' from the beggining of the supplied args.
+    """
+    return args if args[0] != 'self' and args[0] != 'cls' else args[1:]
+
+
 def _get_args(func: Callable) -> Tuple:
     """
     Get the required arguments, including default
@@ -27,10 +34,8 @@ def _params_match_signature(func: Callable, func_types: Tuple[Type, ...], param_
     """
     Determine if func with non optional parameters func_types can be parameterised with param_types.
     """
-    strip_self: Callable[[Tuple], Tuple] = lambda t: tuple([e for e in t if e != 'self'])
-
     # Lengths don't match
-    if not (len(strip_self(_get_required_args(func))) <= len(param_types) <= len(strip_self(_get_args(func)))):
+    if not (len(_strip_self(_get_required_args(func))) <= len(param_types) <= len(_strip_self(_get_args(func)))):
         return False
 
     # Types match
@@ -125,15 +130,19 @@ def overload(func: Callable) -> Callable:
         raise TypeError("Not type annotations found {}".format(func))
 
     param_types: Dict[str, type] = {k: v for k, v in func.__annotations__.items() if k != 'return'}
-    types: Tuple[Type, ...] = tuple([param_types[k] for k in _get_required_args(func) if k != 'self'])
+    args = _get_required_args(func)
+    static = not ('self' in args or 'cls' in args)
+    types: Tuple[Type, ...] = tuple([param_types[k] for k in _strip_self(args)])
 
     name: str = func.__module__ + "." + func.__name__
-    print(name)
     ow = registry.get(name)
     if ow is None:
         # Create a decorated method since it doesn't exist already
         @functools.wraps(func)
         def wrapper(self: Callable, *args: Tuple) -> Callable:  # TODO generics/collections and function support
+            if static:
+                args = tuple([self, *args])
+                self = None
             types: Tuple[Type, ...] = tuple(arg.__class__ for arg in args)
 
             # Find signature with matching parameter types
@@ -144,6 +153,8 @@ def overload(func: Callable) -> Callable:
             if func is None:
                 raise TypeError(f"'{name}' method has no matching signature for '{types}'")
 
+            if static:
+                return func(*args)
             return func(self, *args)  # Call the matching method
 
         # wrapper contains a type map for each of the signatures for a single method name
