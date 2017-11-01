@@ -1,1 +1,2 @@
+from .remote_source_config import RemoteSourceConfig
 from .remote_source_interceptor import RemoteSourceInterceptor

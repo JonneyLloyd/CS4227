@@ -1,7 +1,7 @@
 from abc import abstractmethod
 from typing import TypeVar, Generic
 
-from ..interceptor import ConfigurableInterceptor
+from . import ConfigurableInterceptor
 from ..context import SourceContext
 from ..config import ConfigModel
 

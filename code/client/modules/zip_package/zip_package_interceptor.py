@@ -4,8 +4,10 @@ from shutil import make_archive
 from framework.context import PackageContext
 from framework.interceptor import PackageInterceptor
 
+from . import ZipPackageConfig
 
-class ZipPackageInterceptor(PackageInterceptor):
+
+class ZipPackageInterceptor(PackageInterceptor[ZipPackageConfig]):
 
     def __init__(self, build_root: str, build_name: str,
                  package_path: str, archive_format: str) -> None:
