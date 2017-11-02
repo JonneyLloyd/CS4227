@@ -1,4 +1,4 @@
-from framework.json import Visitable, Visitor
+from framework.json import Visitable
 
 
 class JsonRequest(Visitable):
@@ -6,7 +6,7 @@ class JsonRequest(Visitable):
     def __init__(self, text: str) -> None:
         self._text = text
 
-    def accept(self, visitor: Visitor) -> None:
+    def accept(self, visitor: 'JsonVisitor') -> None:
         self._text = visitor.visit(self)
 
     @property
