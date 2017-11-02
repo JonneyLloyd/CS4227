@@ -1,1 +1,2 @@
+from .local_source_config import LocalSourceConfig
 from .local_source_interceptor import LocalSourceInterceptor

@@ -4,8 +4,10 @@ import spur
 from framework.context import SourceContext
 from framework.interceptor import SourceInterceptor
 
+from . import LocalSourceConfig
 
-class LocalSourceInterceptor(SourceInterceptor):
+
+class LocalSourceInterceptor(SourceInterceptor[LocalSourceConfig]):
 
     def __init__(self, source_path: str, pre_build_path: str) -> None:
         """
@@ -18,7 +20,7 @@ class LocalSourceInterceptor(SourceInterceptor):
         self._pre_build_path = pre_build_path
         self._copy_command = 'cp -r ' + self._source_path + ' ' + self._pre_build_path
 
-    def on_source(self, context: SourceContext):
+    def on_source(self, context: SourceContext) -> None:
         if self._validate_path(self._pre_build_path) and \
            self._validate_path(self._source_path):
             if self._copy_local_source():

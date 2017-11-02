@@ -1,1 +1,2 @@
+from .github_source_config import GithubSourceConfig
 from .github_source_interceptor import GithubSourceInterceptor

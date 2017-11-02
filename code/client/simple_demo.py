@@ -1,10 +1,19 @@
 from framework.pipeline.pipeline import Pipeline
-from modules.demo import DemoInterceptor
+from modules.demo import DemoInterceptor, DemoConfig
 
-pipeline = Pipeline()
-interceptor = DemoInterceptor()
+def main() -> None:
+    pipeline = Pipeline()
 
-dispatcher = pipeline.source_dispatcher
-dispatcher.register(interceptor)
+    # Please add new interceptors
+    d = DemoConfig('4')
+    interceptor = DemoInterceptor()
+    interceptor.config = d
 
-pipeline.execute()
+    dispatcher = pipeline.source_dispatcher
+    dispatcher.register(interceptor)
+
+    pipeline.execute()
+
+
+if __name__ == '__main__':
+    main()

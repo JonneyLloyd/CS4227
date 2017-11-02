@@ -1,1 +1,2 @@
+from .docker_package_config import DockerPackageConfig
 from .docker_package_interceptor import DockerPackageInterceptor
