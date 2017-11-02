@@ -1,1 +1,5 @@
-from code.client.modules.python_build import BuildInterceptor
+from framework.config import ConfigModel, attribute_property
+
+
+class PythonBuildConfig(ConfigModel):
+    ...

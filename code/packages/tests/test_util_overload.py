@@ -1,5 +1,6 @@
 import unittest
 from typing import List, Dict
+from abc import ABC, abstractmethod
 
 from framework.util.overload import overload, registry_test_context
 
@@ -55,6 +56,73 @@ class TestOverloadDecorator(unittest.TestCase):
             x = Test()
             self.assertEqual(x.test(B()), 'B')
             self.assertEqual(x.test(D()), 'C')
+
+    def test_overload_abstract_method(self):
+        with registry_test_context():
+            class TestBase(ABC):
+
+                @abstractmethod
+                def test(self, t: B) -> str:
+                    ...
+
+                @abstractmethod
+                def test(self, t: C) -> str:
+                    ...
+
+            class Test(TestBase):
+
+                @overload
+                def test(self, t: B) -> str:
+                    return 'B'
+
+                @overload
+                def test(self, t: C) -> str:
+                    return 'C'
+
+
+            x = Test()
+            self.assertEqual(x.test(B()), 'B')
+            self.assertEqual(x.test(C()), 'C')
+
+    def test_overload_classmethod(self):
+        with registry_test_context():
+
+            class Test():
+
+                @classmethod
+                @overload
+                def test(cls, t: B) -> str:
+                    return 'B'
+
+                @classmethod
+                @overload
+                def test(cls, t: C) -> str:
+                    return 'C'
+
+
+            x = Test()
+            self.assertEqual(x.test(B()), 'B')
+            self.assertEqual(x.test(C()), 'C')
+
+    def test_overload_staticmethod(self):
+        with registry_test_context():
+
+            class Test():
+
+                @staticmethod
+                @overload
+                def test(t: B) -> str:
+                    return 'B'
+
+                @staticmethod
+                @overload
+                def test(t: C) -> str:
+                    return 'C'
+
+
+            x = Test()
+            self.assertEqual(x.test(B()), 'B')
+            self.assertEqual(x.test(C()), 'C')
 
     def test_overload_variable_length(self):
         with registry_test_context():

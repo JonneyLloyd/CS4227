@@ -4,8 +4,10 @@ import spur
 from framework.context import SourceContext
 from framework.interceptor import SourceInterceptor
 
+from . import RemoteSourceConfig
 
-class RemoteSourceInterceptor(SourceInterceptor):
+
+class RemoteSourceInterceptor(SourceInterceptor[RemoteSourceConfig]):
 
     def __init__(self, remote_path: str, pre_build_path: str, remote_username: str,
                  remote_hostname: str, ssh_key_path: str) -> None:
@@ -26,7 +28,7 @@ class RemoteSourceInterceptor(SourceInterceptor):
         self._scp_command = 'scp -r ' + self._remote_username + '@' + self._remote_hostname \
                             + ':' + self._remote_path + " " + self._pre_build_path
 
-    def on_source(self, context: SourceContext):
+    def on_source(self, context: SourceContext) -> None:
         if self._validate_path(self._pre_build_path) and \
            self._validate_path(self._ssh_key_path) and \
            self._validate_remote_path(self._remote_path):

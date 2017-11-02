@@ -1,1 +1,2 @@
+from .zip_package_config import ZipPackageConfig
 from .zip_package_interceptor import ZipPackageInterceptor

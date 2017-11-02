@@ -4,10 +4,12 @@ import logging
 from framework.context import SourceContext
 from framework.interceptor import SourceInterceptor
 
+from . import GithubSourceConfig
 
-class GithubSourceInterceptor(SourceInterceptor):
+
+class GithubSourceInterceptor(SourceInterceptor[GithubSourceConfig]):
     def __init__(self, pre_build_path: str, git_user: str, git_repo: str,
-                 git_branch: str, ssh_key_path: str):
+                 git_branch: str, ssh_key_path: str) -> None:
         """
         Clone a source from remote git repository for pre-build
         Args:
@@ -26,7 +28,7 @@ class GithubSourceInterceptor(SourceInterceptor):
                                  self._git_user + "/" + self._git_repo + \
                                  ' -b ' + self._git_branch
 
-    def on_source(self, context: SourceContext):
+    def on_source(self, context: SourceContext) -> None:
         if self._validate_path(self._pre_build_path):
             if self._clone_repo():
                 logging.info('Success: Clone source repository')
