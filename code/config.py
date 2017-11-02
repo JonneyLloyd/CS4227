@@ -1,7 +1,5 @@
-import os
+from config_interface import ConfigInterface
 
-class BaseConfig(object):
-    SECRET_KEY = os.urandom(12)
 
-class Config(BaseConfig):
+class Config(ConfigInterface):
     DEBUG = True
