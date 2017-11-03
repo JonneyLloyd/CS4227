@@ -5,8 +5,8 @@ from framework.util.overload import overload
 
 class JsonVisitor(ABC):
 
-    @overload
     @abstractmethod
+    @overload
     def visit(self, visitable: JsonRequest) -> str:
         ...
 
