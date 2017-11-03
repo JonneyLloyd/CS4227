@@ -1,10 +1,12 @@
-from framework.json import Visitor, JsonRequest
+from framework.json import JsonVisitor, JsonRequest
+from framework.util.overload import overload
 from typing import Union
 import json
 
 
-class JsonKeyStripper(Visitor):
+class JsonKeyStripper(JsonVisitor):
 
+    @overload
     def visit(self, json_request: JsonRequest) -> str:
         return self.strip_keys(json_request.text)
 
