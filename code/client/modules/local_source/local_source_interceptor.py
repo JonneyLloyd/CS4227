@@ -1,9 +1,9 @@
 import os.path
 import logging
 import spur
+
 from framework.context import SourceContext
 from framework.interceptor import SourceInterceptor
-
 from . import LocalSourceConfig
 
 
@@ -20,13 +20,18 @@ class LocalSourceInterceptor(SourceInterceptor[LocalSourceConfig]):
         self._pre_build_path = pre_build_path
         self._copy_command = 'cp -r ' + self._source_path + ' ' + self._pre_build_path
 
-    def on_source(self, context: SourceContext) -> None:
+    def pre_source(self, context: SourceContext) -> None:
         if self._validate_path(self._pre_build_path) and \
            self._validate_path(self._source_path):
-            if self._copy_local_source():
-                logging.info('Success: Copy local source')
-            else:
-                logging.error('Fail: Copy local source')
+            logging.info('Success: pre_source path validation')
+        else:
+            logging.error('Failure: pre_source path validation')
+
+    def on_source(self, context: SourceContext) -> None:
+        if self._copy_local_source():
+            logging.info('Success: on_source for local source')
+        else:
+            logging.error('Fail: on_source for local source')
 
     def _validate_path(self, path: str) -> bool:
         is_valid_path = True
@@ -47,6 +52,6 @@ class LocalSourceInterceptor(SourceInterceptor[LocalSourceConfig]):
             logging.error('Copying local source failed:\n' + result.stderr_output)
             copy_success = False
         else:
-            logging.info('Copying local source succeeded' + result.output)
+            logging.info('Copying local source succeeded\n' + result.output)
 
         return copy_success
