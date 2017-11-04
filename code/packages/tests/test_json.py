@@ -1,6 +1,6 @@
 import unittest
 
-from framework.json import JsonRequest, JsonSanitizer
+from framework.json import JsonRequest, JsonSanitizer, JsonKeyStripper
 
 
 class Tests(unittest.TestCase):
