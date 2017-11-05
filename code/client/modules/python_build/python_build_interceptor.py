@@ -1,21 +1,40 @@
 import os.path
 import logging
 import spur
-import venv
+
 from framework.interceptor import BuildInterceptor
 from framework.context import BuildContext
-
 from . import PythonBuildConfig
 
 
 class PythonBuildInterceptor(BuildInterceptor[PythonBuildConfig]):
 
     def __init__(self, pre_build_path: str, build_root: str, build_name: str) -> None:
+        """
+        Build a python application - create virtual environment and install dependencies
+
+        Creates a directory structure in finished builds directory:
+            |-- build_root    (AKA deployment directory)
+              |-- build_name
+                |-- app       (contains app source files)
+                |-- venv      (contains built virtual env)
+
+        Since finished builds directory is also the deployments directory, deployment
+        can be performed locally directly after build (without packaging). In other cases,
+        the build can be packaged with archive/compression and copied to the corresponding
+        deployments directory on a remote host.
+
+        Args:
+            pre_build_path: Absolute path to directory containing sourced files
+            build_root: Absolute path to root of directory containing finished builds
+                        * This is also the default deployment directory *
+            build_name: Name of build
+        """
         self._pre_build_path = pre_build_path
         self._build_root = build_root
         self._build_name = build_name
-        self._build_path = build_root + '/' + build_name
-        self._move_command = 'mv ' + self._pre_build_path + '/*' + self._build_path + '/app'
+        self._build_path = build_root.rstrip('\/') + '/' + build_name
+        self._venv_path = self._build_path + '/venv'
 
     def pre_build(self, context: BuildContext) -> None:
         if self._validate_path(self._pre_build_path) and self._validate_path(self._build_path) \
@@ -32,7 +51,7 @@ class PythonBuildInterceptor(BuildInterceptor[PythonBuildConfig]):
 
     def _validate_path(self, path: str) -> bool:
         is_valid_path = True
-        if os.path.isdir(self._source_path):
+        if os.path.isabs(path):
             logging.info('Located ' + path.__name__ + ": " + path)
         else:
             logging.error('Could not locate ' + path.__name__ + ": " + path)
@@ -40,62 +59,87 @@ class PythonBuildInterceptor(BuildInterceptor[PythonBuildConfig]):
 
         return is_valid_path
 
-    def create_build_dir(self) -> bool:
+    def _create_build_dir(self) -> bool:
         create_success = True
-        local_shell = spur.LocalShell()
+        mkdir_cmd = 'mkdir -p' + self._build_path + '/' + 'app'
+        mkdir_args = mkdir_cmd.split()
 
-        result = local_shell.run('mkdir -p' + self._build_path + '/' + 'app')
-        if result.return_code != 0:
-            logging.error('Creating build directory:\n' + result.stderr_output)
+        local_shell = spur.LocalShell()
+        try:
+            local_shell.run(mkdir_args)
+            logging.info('Created build directory: ' + self._build_path)
+        except spur.RunProcessError:
+            logging.error('Creating build directory failed: ' + self._build_path)
             create_success = False
-        else:
-            logging.info('Created build directory:\n' + result.output)
 
         return create_success
 
     def _move_source_for_build(self) -> bool:
         move_success = True
-        local_shell = spur.LocalShell()
+        move_cmd = 'mv ' + self._pre_build_path + '/*' + self._build_path + '/app'
+        move_args = move_cmd.split()
 
-        result = local_shell.run(self._move_command)
-        if result.return_code != 0:
-            logging.error('Moving source to build directory failed:\n' + result.stderr_output)
+        local_shell = spur.LocalShell()
+        try:
+            local_shell.run(move_args)
+            logging.info('Moving source to build directory succeeded: ' + move_cmd)
+        except spur.RunProcessError:
+            logging.error('Moving source to build directory failed: ' + move_cmd)
             move_success = False
-        else:
-            logging.info('Moving source to build directory succeeded:\n' + result.output)
 
         return move_success
 
     def _create_venv(self) -> bool:
         venv_success = True
-        venv_path = self._build_path + '/venv'
-        if venv.create(venv_path):
-            logging.info('Created venv in: ' + self._build_path)
-        else:
+        venv_context_cmd = 'export WORKON_HOME=' + self._build_path
+        venv_context_args = venv_context_cmd.split()
+
+        local_shell = spur.LocalShell()
+        try:
+            local_shell.run(venv_context_args)
+            logging.info('Switched venv WORKON_HOME: ' + self._build_path)
+        except spur.RunProcessError:
+            logging.error('Changing venv WORKON_HOME failed: ' + self._build_path)
             venv_success = False
-            logging.error('Unable to create venv in: ' + self._build_path)
+        if venv_success:
+            try:
+                local_shell.run(['mkvirtualenv', 'venv'])
+                logging.info('Created virtual environment: ' + self._venv_path)
+            except spur.RunProcessError:
+                logging.error('Creating virtual environment failed: ' + self._venv_path)
+                venv_success = False
+        if venv_success:
+            try:
+                local_shell.run(['workon', 'venv'])
+                logging.info('Switched venv workon context: ' + self._venv_path)
+            except spur.RunProcessError:
+                logging.error('Failed to switch venv context: ' + self._venv_path)
+                venv_success = False
 
         return venv_success
 
     def _install_requirements(self) -> bool:
         install_success = True
-        venv_activate_path = 'source ' + self._build_path + '/venv/bin/activate'
-        local_shell = spur.LocalShell()
+        requirements_path = self._build_path + '/app/requirements.txt'
+        venv_activate_cmd = 'source ' + self._build_path + '/venv/bin/activate'
+        venv_args = venv_activate_cmd.split()
+        pip_install_command = 'pip3 install -r ' + requirements_path
+        pip_args = pip_install_command.split()
 
-        result = local_shell.run(venv_activate_path)
-        if result.return_code != 0:
+        local_shell = spur.LocalShell()
+        try:
+            local_shell.run(venv_args)
+            logging.info('Sourced venv: ' + venv_activate_cmd)
+        except spur.RunProcessError:
+            logging.error('Unable to source venv: ' + venv_activate_cmd)
             install_success = False
-            logging.error('Unable to source venv:\n' + result.stderr_output)
-        else:
-            logging.info('Sourced venv:\n' + venv_activate_path)
+
         if install_success:
-            result = local_shell.run('pip3 install -r ' + self._build_path + '/app/requirements.txt')
-            if result.return_code != 0:
+            try:
+                local_shell.run(pip_args)
+                logging.info('Installed pip requirements from ' + requirements_path)
+            except spur.RunProcessError:
+                logging.error('Failed to pip install dependencies from ' + requirements_path)
                 install_success = False
-                logging.error('Failed to pip install dependencies from requirements.txt:\n'
-                              + result.stderr_output)
-            else:
-                logging.info('Success: installed pip requirements:\n' + result.output)
-                local_shell.run('deactivate')
 
         return install_success
