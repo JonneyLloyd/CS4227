@@ -1,4 +1,3 @@
-from pickle import dumps
 from types import List
 
 from ..context import SourceContext
@@ -10,9 +9,9 @@ from ..config import ConfigModel
 Configs = List[ConfigModelBase]
 
 class Pipeline(PipelineBase):
-    def __init__(self, configs: Configs) -> None:
+    def __init__(self) -> None:
         self._source_dispatcher: SourceDispatcher = SourceDispatcher()
-        self._configs: Configs = configs
+        self._configs: Configs = None
 
     @property
     def source_dispatcher(self) -> SourceDispatcher:
@@ -22,12 +21,9 @@ class Pipeline(PipelineBase):
         self._source_dispatcher.dispatch(SourceContext(self))
 
     def create_memento(self) -> str:
-        '''Returns a pickle object represented as a string'''
-        return dumps(vars(self))
+        # Create an array of Strings
+        return [c.__name__ for c in self._configs]
 
     def restore_from_memento(self, memento: str) -> None:
-        '''Converts the str back to a pickle object
-        and updates our current object'''
-        state = pickle.loads(memento)
-        vars(self).clear()
-        vars(self).update(state)
+        # Convert from String array to array of Classes
+        self._configs = [sys.modules[c] for c in memento]
