@@ -82,10 +82,10 @@ class PythonBuildInterceptor(BuildInterceptor[PythonBuildConfig]):
         local_shell = spur.LocalShell()
         try:
             local_shell.run(copy_args)
-            logging.info('Moving source to build directory succeeded: ' + move_cmd)
+            logging.info('Moving source to build directory succeeded: ' + copy_cmd)
         except spur.RunProcessError:
-            logging.error('Moving source to build directory failed: ' + move_cmd)
-            move_success = False
+            logging.error('Moving source to build directory failed: ' + copy_cmd)
+            copy_success = False
 
         return copy_success
 
