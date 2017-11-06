@@ -1,0 +1,84 @@
+\chapter{Added Value}
+
+  \section{Git \& Github}
+  We used Git for handling version control with ease and Github to share the project with each other.
+  We also submitted pull requests which were subjected to code review. This made us all aware of
+  changes and allowed us to discuss issues in a relevant place.
+
+  \section{LaTex}
+  We used LaTex for creating the report. LaTex is much more version control friendly than other
+  software such as Microsoft Word and it also runs on all platforms including Linux with not
+  discrepancies in formatting. It also allowed us to reference external diagram exports so that
+  the document never had a stale version.
+
+  \section{Dependency Management}
+  We used \emph{pip}, a package manager for Python, which allowed us to declare our dependencies.
+  This meant that all team members could easily install new dependencies.
+
+  \section{Automated Unit Testing}
+  We wrote unit tests for many of the core modules we wrote. We used the Python inbuilt unit testing
+  framework as well as \emph{nose2}, an automated framework which wraps the inbuilt one with extra
+  functionality. This allowed us to verify that code changes were non-breaking.
+
+  \section{Flask Framework}
+  Flask is a microframework for web development in Python. We used it to implement the REST API
+  which controls the pipeline.
+
+  \section{NoSQL Database}
+  We decided that SQL was not appropriate for our scenario so we decided to use DynamoDb which is a
+  NoSQL database.
+
+  \section{Deployment Configuration}
+  The project can be deployed with different configurations for different environments such as
+  testing, development and production. This allows us to set a different log level and a different
+  database endpoint.
+
+  \section{Pluggable Adapter}
+  We implemented the pluggable Adapter to create an abstraction layer between our application and
+  the chosen NoSQL database. This means that any database which supports the set of CRUD operations
+  defined in our interface can be used by just implementing the required hooks in the pluggable
+  adapter.
+
+  \section{Reflection \& Metaprogramming}
+  \label{added_value_reflection}
+  % ref impl.
+  We used reflection to allow us to create a flexible ORM-like interface for clients.
+  Clients can implement their own interceptors, but in the context of our scenario these need
+  configuration. Since the configuration is quite unstructured it is difficult to model.
+  We implemented a class called \emph{Config Model} which served as a base class for all other configs.
+  This class abstracts away all the complications associated with storing, retrieving and restoring
+  unstructured objects. Clients use decorators to \emph{tag} getters for values that should be stored
+  in the database as well as any other meta data associated with the field.
+  It is extremely flexible and even allows nested data structures using the composite design
+  pattern. A memento can be created and restored for any of the sub classes.
+
+  Python has support for generics in type annotations, but there is no way to access this information
+  at run time. We created a base class and used reflection to retrieve the information so that it
+  could be used for something useful such as a generic factory.
+
+  Python \emph{has} a limited way in supporting method overloading with the introduction of type
+  annotations, but once again it is of little use beyond linting in a text editor.
+  The current implementation requires stub methods with the correct types followed by a \emph{catch
+  all} method which actually does instance of checks. This is a really ugly approach.
+  We implemented a decorator which added the functionality that one would expect. The decorator
+  uses reflection to find the parameter types and when a method is called it dispatches to the
+  appropriate implementation. In other words, it abstracts out the instance-of checks.
+  Whilst it cannot support complex generics due to type erasure, it works perfectly well
+  for all other types and supports polymorphism which is sufficient to support most use cases
+  and design patterns such as the Visitor.
+
+
+\chapter{Problems Encountered}
+
+  \section{Object Oriented Programming in Python}
+  Python is a duck-typed language which has some drawbacks when trying to implement an OO-design.
+  Recently a standard was released for Python which introduced \emph{type annotations}.
+  We decided to try it for our project since it offered what seemed to be static types and support
+  for generics.
+  Unfortunately, most of the functionality has no benefit at runtime and is mostly ignored. It is
+  provided to support a limited static typing for use with text editors that support it.
+
+  This caused some problems when trying to implement certain design patterns or when using generics.
+  However, we were able to overcome some of these limitations by introducing an overload
+  decorator and implementing a generic base class which gave access to generic types at runtime
+  using reflection. This is discussed in more detail in \ref{added_value_reflection}.
