@@ -121,15 +121,17 @@ class PythonBuildInterceptor(BuildInterceptor[PythonBuildConfig]):
     def _install_requirements(self) -> bool:
         install_success = True
         requirements_path = self._build_path + '/app/requirements.txt'
+        venv_activate_cmd = 'source ' + self._build_path + '/venv/bin/activate'
+        venv_args = venv_activate_cmd.split()
         pip_install_command = 'pip3 install -r ' + requirements_path
         pip_args = pip_install_command.split()
 
         local_shell = spur.LocalShell()
         try:
-            local_shell.run(['workon', 'venv'])
-            logging.info('Switched venv workon context: ' + self._venv_path)
+            local_shell.run(venv_args)
+            logging.info('Sourced venv: ' + venv_activate_cmd)
         except spur.RunProcessError:
-            logging.error('Failed to switch venv context: ' + self._venv_path)
+            logging.error('Unable to source venv: ' + venv_activate_cmd)
             install_success = False
 
         if install_success:
