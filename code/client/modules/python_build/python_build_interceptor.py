@@ -63,19 +63,19 @@ class PythonBuildInterceptor(BuildInterceptor[PythonBuildConfig]):
         return create_success
 
     def _copy_source_for_build(self) -> bool:
-        move_success = True
-        move_cmd = 'cp -r ' + self.config.pre_build_path + '/*' + self.config.build_path + '/app'
-        move_args = move_cmd.split()
+        copy_success = True
+        copy_cmd = 'cp -r ' + self.config.pre_build_path + '/*' + self.config.build_path + '/app'
+        copy_args = copy_cmd.split()
 
         local_shell = spur.LocalShell()
         try:
-            local_shell.run(move_args)
-            logging.info('Moving source to build directory succeeded: ' + move_cmd)
+            local_shell.run(copy_args)
+            logging.info('Moving source to build directory succeeded: ' + copy_cmd)
         except spur.RunProcessError:
-            logging.error('Moving source to build directory failed: ' + move_cmd)
-            move_success = False
+            logging.error('Moving source to build directory failed: ' + copy_cmd)
+            copy_success = False
 
-        return move_success
+        return copy_success
 
     def _create_venv(self) -> bool:
         venv_success = True
