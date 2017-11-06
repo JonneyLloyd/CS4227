@@ -1,9 +1,9 @@
 import os.path
 import spur
 import logging
-
 from framework.context import SourceContext
 from framework.interceptor import SourceInterceptor
+
 from . import GithubSourceConfig
 
 
@@ -28,17 +28,12 @@ class GithubSourceInterceptor(SourceInterceptor[GithubSourceConfig]):
                                  self._git_user + "/" + self._git_repo + \
                                  ' -b ' + self._git_branch
 
-    def pre_source(self, context: SourceContext) -> None:
-        if self._validate_path(self._pre_build_path):
-            logging.info('Success: pre_source path validation')
-        else:
-            logging.error('Failure: pre_source path validation')
-
     def on_source(self, context: SourceContext) -> None:
-        if self._clone_repo():
-            logging.info('Success: on_source GitHub repo ' + self._git_repo)
-        else:
-            logging.error('Failure: on_source GitHub repo ' + self._git_repo)
+        if self._validate_path(self._pre_build_path):
+            if self._clone_repo():
+                logging.info('Success: Clone source repository')
+            else:
+                logging.error('Fail: Clone source repository')
 
     def _validate_path(self, path: str) -> bool:
         is_valid_path = True

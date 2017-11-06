@@ -26,18 +26,14 @@ class ZipPackageInterceptor(PackageInterceptor[ZipPackageConfig]):
         self._archive_format = archive_format
         self._build_path = self._build_root + self._build_name
 
-    def pre_package(self, context: PackageContext) -> None:
+    def on_package(self, context: PackageContext) -> None:
         if self._validate_path(self._build_path) and \
            self._validate_path(self._package_path):
-            logging.info('Success: pre_package for build: ' + self._build_name)
-        else:
-            logging.error('Failure: pre_package for build: ' + self._build_name)
 
-    def on_package(self, context: PackageContext) -> None:
-        if self._archive_format_command(self._archive_format):
-            logging.info('Success: on_package for build: ' + self._build_name)
-        else:
-            logging.error('Fail: on_package for build: ' + self._build_name)
+            if self._archive_format_command(self._archive_format):
+                logging.info('Success: Packaged build')
+            else:
+                logging.error('Fail: Packaging build')
 
     def _validate_path(self, path: str) -> bool:
         is_valid_path = True

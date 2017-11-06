@@ -1,9 +1,9 @@
 import os.path
 import logging
 import spur
-
 from framework.context import SourceContext
 from framework.interceptor import SourceInterceptor
+
 from . import RemoteSourceConfig
 
 
@@ -28,19 +28,14 @@ class RemoteSourceInterceptor(SourceInterceptor[RemoteSourceConfig]):
         self._scp_command = 'scp -r ' + self._remote_username + '@' + self._remote_hostname \
                             + ':' + self._remote_path + " " + self._pre_build_path
 
-    def pre_source(self, context: SourceContext) -> None:
+    def on_source(self, context: SourceContext) -> None:
         if self._validate_path(self._pre_build_path) and \
            self._validate_path(self._ssh_key_path) and \
            self._validate_remote_path(self._remote_path):
-            logging.info('Success: pre_source for remote path: ' + self._remote_path)
-        else:
-            logging.error('Failure: pre_source for remote path: ' + self._remote_path)
-
-    def on_source(self, context: SourceContext) -> None:
-        if self._copy_remote_source():
-            logging.info('Success: on_source for remote path: ' + self._remote_path)
-        else:
-            logging.error('Fail: on_source for remote path: ' + self._remote_path)
+            if self._copy_remote_source():
+                logging.info('Success: Copy remote source')
+            else:
+                logging.error('Fail: Copy remote source')
 
     def _validate_path(self, path: str) -> bool:
         is_valid_path = True
