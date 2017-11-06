@@ -10,9 +10,5 @@ T = TypeVar('T', bound=ConfigModel)
 class SourceInterceptor(ConfigurableInterceptor[T], Generic[T]):
 
     @abstractmethod
-    def pre_source(selfs, context: SourceContext) -> None:
-        ...
-
-    @abstractmethod
     def on_source(self, context: SourceContext) -> None:
         ...

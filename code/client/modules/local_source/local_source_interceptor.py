@@ -10,15 +10,16 @@ from . import LocalSourceConfig
 class LocalSourceInterceptor(SourceInterceptor[LocalSourceConfig]):
     """ Copy source from local source to local directory for pre-build """
 
-    def pre_source(self, context: SourceContext) -> None:
+    def on_source(self, context: SourceContext) -> None:
+        source_success = True
         if self._validate_path(self.config.pre_build_path) and \
            self._validate_path(self.config.source_path):
-            logging.info('Success: pre_source path validation')
+            logging.info('Success: on_source path validation')
         else:
-            logging.error('Failure: pre_source path validation')
+            logging.error('Failure: on_source path validation')
+            source_success = False
 
-    def on_source(self, context: SourceContext) -> None:
-        if self._copy_local_source():
+        if source_success and self._copy_local_source():
             logging.info('Success: on_source for local source')
         else:
             logging.error('Failure: on_source for local source')

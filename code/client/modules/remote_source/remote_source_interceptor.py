@@ -10,16 +10,16 @@ from . import RemoteSourceConfig
 class RemoteSourceInterceptor(SourceInterceptor[RemoteSourceConfig]):
     """ Copy a remote source to a local directory for pre-build """
 
-    def pre_source(self, context: SourceContext) -> None:
+    def on_source(self, context: SourceContext) -> None:
+        source_success = True
         if self._validate_path(self.config.pre_build_path) and \
            self._validate_path(self.config.ssh_key_path) and \
            self._validate_remote_path(self.config.remote_path):
-            logging.info('Success: pre_source for remote path: ' + self.config.remote_path)
+            logging.info('Success: on_source remote path validation: ' + self.config.remote_path)
         else:
-            logging.error('Failure: pre_source for remote path: ' + self.config.remote_path)
+            logging.error('Failure: on_source remote path validation: ' + self.config.remote_path)
 
-    def on_source(self, context: SourceContext) -> None:
-        if self._copy_remote_source():
+        if source_success and self._copy_remote_source():
             logging.info('Success: on_source for remote path: ' + self.config.remote_path)
         else:
             logging.error('Fail: on_source for remote path: ' + self.config.remote_path)

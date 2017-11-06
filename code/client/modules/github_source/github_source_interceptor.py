@@ -10,14 +10,16 @@ from . import GithubSourceConfig
 class GithubSourceInterceptor(SourceInterceptor[GithubSourceConfig]):
     """ Clone a source from remote git repository for pre-build """
 
-    def pre_source(self, context: SourceContext) -> None:
-        if self._validate_path(self.config.pre_build_path):
-            logging.info('Success: pre_source path validation')
-        else:
-            logging.error('Failure: pre_source path validation')
-
     def on_source(self, context: SourceContext) -> None:
-        if self._clone_repo():
+        source_success = True
+        if self._validate_path(self.config.pre_build_path) and \
+           self._validate_path(self.config.ssh_key_path):
+            logging.info('Success: on_source path validation')
+        else:
+            logging.error('Failure: on_source path validation')
+            source_success = False
+
+        if source_success and self._clone_repo():
             logging.info('Success: on_source GitHub repo ' + self.config.git_repo)
         else:
             logging.error('Failure: on_source GitHub repo ' + self.config.git_repo)
@@ -35,20 +37,13 @@ class GithubSourceInterceptor(SourceInterceptor[GithubSourceConfig]):
     def _clone_repo(self) -> bool:
         clone_success = True
         local_shell = spur.LocalShell()
-
+        ssh_git_cmd = 'eval `ssh-agent`; ssh-add ' + self.config.ssh_key_path + \
+                      '; cd ' + self.config.pre_build_path + '; ' + self.config.git_command
         try:
-            local_shell.run(['ssh-add ', self.config.ssh_key_path])
-            logging.info('ssh-add succeeded: ' + self.config.ssh_key_path)
+            local_shell.run(['sh', '-c', ssh_git_cmd])
+            logging.info('Git clone succeeded: ' + self.config.git_command)
         except spur.RunProcessError:
-            logging.error('ssh-add failed: ' + self.config.ssh_key_path)
+            logging.error('Git clone failed: ' + self.config.git_command)
             clone_success = False
-
-        if clone_success:
-            try:
-                local_shell.run(['sh', '-c', self.config.git_command])
-                logging.info('Git clone succeeded:\n' + self.config.git_command)
-            except spur.RunProcessError:
-                logging.error('Git clone failed:\n' + self.config.git_command)
-                clone_success = False
 
         return clone_success

@@ -22,8 +22,8 @@ class GithubSourceConfig(ConfigModel):
         self._git_repo = git_repo
         self._git_branch = git_branch
         self._ssh_key_path = ssh_key_path
-        self._git_command: str = 'cd ' + self.pre_build_path + '; git clone ssh://git@github.com:' + \
-                                 self._git_user + "/" + self._git_repo + ' -b ' + self._git_branch
+        self._git_command: str = 'git clone git@github.com:' + self._git_user + "/" + \
+                                 self._git_repo + '.git -b ' + self._git_branch
 
     @attribute_property('pre_build_path')
     def pre_build_path(self) -> str:
