@@ -1,16 +1,13 @@
-import os
-from os import sys
-sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
-from app.app_factory import AppFactory
-from config import Config
+from framework.server import PipelineServer
+
+from config import DevConfig
+from modules.demo import DemoConfig, DemoInterceptor
 
 
 def main() -> None:
-    server_demo()
-
-def server_demo() -> None:
-    app = AppFactory.create_app(Config)
-    app.run()
+    server = PipelineServer(DevConfig)
+    server.register_module(DemoConfig, DemoInterceptor)
+    server.start()
 
 if __name__ == "__main__":
     main()
