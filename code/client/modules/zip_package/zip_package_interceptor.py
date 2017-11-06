@@ -13,7 +13,6 @@ class ZipPackageInterceptor(PackageInterceptor[ZipPackageConfig]):
                  package_path: str, archive_format: str) -> None:
         """
         Package up build with archive/compression
-
         Args:
             build_root: Absolute path to root directory of build
                         e.g. '/home/deployment/build_dir/'
@@ -25,24 +24,20 @@ class ZipPackageInterceptor(PackageInterceptor[ZipPackageConfig]):
         self._build_name = build_name
         self._package_path = package_path
         self._archive_format = archive_format
-        self._build_path = self._build_root.rstrip('\/') + '/' + self._build_name
-
-    def pre_package(self, context: PackageContext) -> None:
-        if self._validate_path(self._build_path) and \
-           self._validate_path(self._package_path):
-            logging.info('Success: pre_package for build: ' + self._build_name)
-        else:
-            logging.error('Failure: pre_package for build: ' + self._build_name)
+        self._build_path = self._build_root + self._build_name
 
     def on_package(self, context: PackageContext) -> None:
-        if self._archive_format_command(self._archive_format):
-            logging.info('Success: on_package for build: ' + self._build_name)
-        else:
-            logging.error('Fail: on_package for build: ' + self._build_name)
+        if self._validate_path(self._build_path) and \
+           self._validate_path(self._package_path):
+
+            if self._archive_format_command(self._archive_format):
+                logging.info('Success: Packaged build')
+            else:
+                logging.error('Fail: Packaging build')
 
     def _validate_path(self, path: str) -> bool:
         is_valid_path = True
-        if os.path.isabs(path):
+        if os.path.isdir(self._source_path):
             logging.info('Located ' + path.__name__ + ": " + path)
         else:
             logging.error('Could not locate ' + path.__name__ + ": " + path)
@@ -50,7 +45,7 @@ class ZipPackageInterceptor(PackageInterceptor[ZipPackageConfig]):
 
         return is_valid_path
 
-    def _archive_format_command(self, format) -> bool:
+    def _archive_format_command(self, x) -> bool:
         found_format = True
         archive_list = {
             'zip',  # compression
@@ -58,9 +53,8 @@ class ZipPackageInterceptor(PackageInterceptor[ZipPackageConfig]):
             'xztar',  # compression
             'tar'  # archive only
         }
-        if format in archive_list:
-            self._archive(format)
-            logging.info('Packaged build with format: ' + format)
+        if x in archive_list:
+            self._archive(x)
         else:
             logging.error('Invalid archive format supplied')
             found_format = False

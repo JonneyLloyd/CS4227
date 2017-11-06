@@ -1,9 +1,9 @@
 import os.path
 import spur
 import logging
-
 from framework.context import SourceContext
 from framework.interceptor import SourceInterceptor
+
 from . import GithubSourceConfig
 
 
@@ -12,10 +12,9 @@ class GithubSourceInterceptor(SourceInterceptor[GithubSourceConfig]):
                  git_branch: str, ssh_key_path: str) -> None:
         """
         Clone a source from remote git repository for pre-build
-
         Args:
             pre_build_path: Absolute Path to directory to clone repo into
-                            e.g. '/home/deployment/pre_build/'
+                            e.g. /home/deployment/pre_build/
             git_user: Username of git repo owner
             git_repo: Name of git repository
             git_branch: Branch of repo to clone
@@ -28,23 +27,17 @@ class GithubSourceInterceptor(SourceInterceptor[GithubSourceConfig]):
         self._git_command: str = 'git clone ssh://git@github.com:' + \
                                  self._git_user + "/" + self._git_repo + \
                                  ' -b ' + self._git_branch
-        self._cmd_args: list = self._git_command.split()
-
-    def pre_source(self, context: SourceContext) -> None:
-        if self._validate_path(self._pre_build_path):
-            logging.info('Success: pre_source path validation')
-        else:
-            logging.error('Failure: pre_source path validation')
 
     def on_source(self, context: SourceContext) -> None:
-        if self._clone_repo():
-            logging.info('Success: on_source GitHub repo ' + self._git_repo)
-        else:
-            logging.error('Failure: on_source GitHub repo ' + self._git_repo)
+        if self._validate_path(self._pre_build_path):
+            if self._clone_repo():
+                logging.info('Success: Clone source repository')
+            else:
+                logging.error('Fail: Clone source repository')
 
     def _validate_path(self, path: str) -> bool:
         is_valid_path = True
-        if os.path.isabs(path):
+        if os.path.isdir(self._source_path):
             logging.info('Located ' + path.__name__ + ": " + path)
         else:
             logging.error('Could not locate ' + path.__name__ + ": " + path)
@@ -56,19 +49,19 @@ class GithubSourceInterceptor(SourceInterceptor[GithubSourceConfig]):
         clone_success = True
         local_shell = spur.LocalShell()
 
-        try:
-            local_shell.run(['ssh-add ', self._ssh_key_path])
-            logging.info('ssh-add succeeded: ' + self._ssh_key_path)
-        except spur.RunProcessError:
-            logging.error('ssh-add failed: ' + self._ssh_key_path)
+        result = local_shell.run('ssh-add ' + self._ssh_key_path)
+        if result.return_code != 0:
+            logging.error('ssh-add failed:\n' + result.stderr_output)
             clone_success = False
+        else:
+            logging.info('ssh-add succeeded:\n' + result.output)
 
         if clone_success:
-            try:
-                local_shell.run(self._cmd_args)
-                logging.info('Git clone succeeded:\n' + self._git_command)
-            except spur.RunProcessError:
-                logging.error('Git clone failed:\n' + self._git_command)
+            result = local_shell.run(self._git_command)
+            if result.return_code != 0:
+                logging.error('Git clone failed:\n' + result.stderr_output)
                 clone_success = False
+            else:
+                logging.info('Git clone succeeded:\n' + result.output)
 
         return clone_success

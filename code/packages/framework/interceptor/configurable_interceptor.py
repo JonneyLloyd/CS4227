@@ -2,9 +2,9 @@ from typing import Type, TypeVar, Generic
 
 from ..util import GenericABC, overload
 from ..config import ConfigModel, ConfigMemento
+
+
 T = TypeVar('T', bound=ConfigModel)
-
-
 class ConfigurableInterceptor(GenericABC, Generic[T]):
     """
     A generic base class responsible for creating the appropriate ConfigModel for interceptors.
