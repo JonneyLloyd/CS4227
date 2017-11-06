@@ -24,7 +24,7 @@ class PythonBuildInterceptor(BuildInterceptor[PythonBuildConfig]):
     """
 
     def pre_build(self, context: BuildContext) -> None:
-        if self._validate_path(self.config.pre_build_path) \
+        if validate_path(self.config.pre_build_path) \
            and self._validate_path(self.config.build_path) \
            and self._create_build_dir() and self._move_source_for_build():
             logging.info('Success: pre_build for build ' + self.config.build_name)
@@ -62,9 +62,9 @@ class PythonBuildInterceptor(BuildInterceptor[PythonBuildConfig]):
 
         return create_success
 
-    def _move_source_for_build(self) -> bool:
+    def _copy_source_for_build(self) -> bool:
         move_success = True
-        move_cmd = 'mv ' + self.config.pre_build_path + '/*' + self.config.build_path + '/app'
+        move_cmd = 'cp -r ' + self.config.pre_build_path + '/*' + self.config.build_path + '/app'
         move_args = move_cmd.split()
 
         local_shell = spur.LocalShell()
@@ -87,7 +87,7 @@ class PythonBuildInterceptor(BuildInterceptor[PythonBuildConfig]):
             local_shell.run(venv_context_args)
             logging.info('Switched venv WORKON_HOME: ' + self.config.build_path)
         except spur.RunProcessError:
-            logging.error('Changing venv WORKON_HOME failed: ' + self.config.build_path)
+            logging.error('Switching venv WORKON_HOME failed: ' + self.config.build_path)
             venv_success = False
         if venv_success:
             try:
@@ -98,10 +98,10 @@ class PythonBuildInterceptor(BuildInterceptor[PythonBuildConfig]):
                 venv_success = False
         if venv_success:
             try:
-                local_shell.run(['workon', 'venv'])
-                logging.info('Switched venv workon context: ' + self.config.venv_path)
+                local_shell.run(['sh', '-c', 'workon venv; deactivate'])
+                logging.info('Tested venv activation: ' + self.config.venv_path)
             except spur.RunProcessError:
-                logging.error('Failed to switch venv context: ' + self.config.venv_path)
+                logging.error('Failed to test venv activation: ' + self.config.venv_path)
                 venv_success = False
 
         return venv_success
@@ -110,22 +110,13 @@ class PythonBuildInterceptor(BuildInterceptor[PythonBuildConfig]):
         install_success = True
         requirements_path = self.config.build_path + '/app/requirements.txt'
         pip_install_command = 'pip3 install -r ' + requirements_path
-        pip_args = pip_install_command.split()
 
         local_shell = spur.LocalShell()
         try:
-            local_shell.run(['workon', 'venv'])
-            logging.info('Switched venv workon context: ' + self._venv_path)
+            local_shell.run(['sh', '-c', 'workon venv; ' + pip_install_command])
+            logging.info('Installed pip requirements from ' + requirements_path)
         except spur.RunProcessError:
-            logging.error('Failed to switch venv context: ' + self._venv_path)
+            logging.error('Failed to pip install dependencies from ' + requirements_path)
             install_success = False
-
-        if install_success:
-            try:
-                local_shell.run(pip_args)
-                logging.info('Installed pip requirements from ' + requirements_path)
-            except spur.RunProcessError:
-                logging.error('Failed to pip install dependencies from ' + requirements_path)
-                install_success = False
 
         return install_success

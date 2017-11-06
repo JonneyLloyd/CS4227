@@ -82,8 +82,6 @@ class LocalDeployInterceptor(DeployInterceptor[LocalDeployConfig]):
         venv_success = True
         venv_context_cmd = 'export WORKON_HOME=' + self.config.unpacked_build
         venv_context_args = venv_context_cmd.split()
-        activate_venv_cmd = 'workon venv'
-        activate_venv_args = activate_venv_cmd.split()
 
         local_shell = spur.LocalShell()
         try:
@@ -94,10 +92,10 @@ class LocalDeployInterceptor(DeployInterceptor[LocalDeployConfig]):
             venv_success = False
         if venv_success:
             try:
-                local_shell.run(activate_venv_args)
-                logging.info('Activated venv with workon for build: ' + self.config.build_name)
+                local_shell.run(['sh', '-c', 'workon venv; deactivate'])
+                logging.info('Tested venv activation for build: ' + self.config.build_name)
             except spur.RunProcessError:
-                logging.error('Activating venv with workon failed for build: ' + self.config.build_name)
+                logging.error('Testing venv activation failed for build: ' + self.config.build_name)
 
         return venv_success
 
