@@ -45,7 +45,7 @@ class GithubSourceInterceptor(SourceInterceptor[GithubSourceConfig]):
 
         if clone_success:
             try:
-                local_shell.run(self.config.cmd_args)
+                local_shell.run(['sh', '-c', self.config.git_command])
                 logging.info('Git clone succeeded:\n' + self.config.git_command)
             except spur.RunProcessError:
                 logging.error('Git clone failed:\n' + self.config.git_command)

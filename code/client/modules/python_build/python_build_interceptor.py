@@ -24,9 +24,9 @@ class PythonBuildInterceptor(BuildInterceptor[PythonBuildConfig]):
     """
 
     def pre_build(self, context: BuildContext) -> None:
-        if validate_path(self.config.pre_build_path) \
+        if self._validate_path(self.config.pre_build_path) \
            and self._validate_path(self.config.build_path) \
-           and self._create_build_dir() and self._move_source_for_build():
+           and self._create_build_dir() and self._copy_source_for_build():
             logging.info('Success: pre_build for build ' + self.config.build_name)
         else:
             logging.error('Failure: pre_build for build ' + self.config.build_name)

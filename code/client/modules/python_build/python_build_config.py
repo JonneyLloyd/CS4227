@@ -15,7 +15,7 @@ class PythonBuildConfig(ConfigModel):
             build_root: Absolute path to directory containing finished build
             build_name: Name of build, directory in build_root will be called this
         """
-        self._pre_build_path = pre_build_path
+        self._pre_build_path = pre_build_path.rstrip('\/')
         self._build_root = build_root
         self._build_name = build_name
         self._build_path = build_root.rstrip('\/') + '/' + build_name
@@ -27,7 +27,7 @@ class PythonBuildConfig(ConfigModel):
 
     @pre_build_path.setter
     def pre_build_path(self, pre_build_path: str) -> None:
-        self._pre_build_path = pre_build_path
+        self._pre_build_path = pre_build_path.rstrip('\/')
 
     @attribute_property('build_root')
     def build_root(self) -> str:
