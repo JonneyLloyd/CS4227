@@ -25,8 +25,8 @@ def main() -> None:
     lsrc_config = LocalSourceConfig('/home/jay/fw_test/src_dir/src_japp', '/home/jay/fw_test/pre_build_dir')
     build_config = PythonBuildConfig('/home/jay/fw_test/pre_build_dir/src_japp', '/home/jay/fw_test/build_dir',
                                      'build_japp')
-    pkg_config = ZipPackageConfig('/home/jay/fw_test/build_dir', 'build_japp', 'home/jay/fw_test/pkg_dir/pkg_japp', 'zip')
-    deploy_config = LocalDeployConfig('home/jay/fw_test/pkg_dir/pkg_japp', 'build_japp', 'home/jay/fw_test/deploy_dir',
+    pkg_config = ZipPackageConfig('/home/jay/fw_test/build_dir', 'build_japp', '/home/jay/fw_test/pkg_dir/pkg_japp', 'zip')
+    deploy_config = LocalDeployConfig('/home/jay/fw_test/pkg_dir/pkg_japp', 'build_japp', '/home/jay/fw_test/deploy_dir',
                                       ['/home/jay/fw_test/deploy_dir/build_japp/app/run.py'], True)
 
     lsrc_interceptor = LocalSourceInterceptor()
