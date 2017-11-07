@@ -13,8 +13,8 @@ class GithubSourceInterceptor(SourceInterceptor[GithubSourceConfig]):
 
     def on_source(self, context: SourceContext) -> None:
         source_success = True
-        if self._validate_path(self.config.pre_build_path) and \
-           self._validate_path(self.config.ssh_key_path):
+        if self._validate_path(self.config.pre_build_path, False) and \
+           self._validate_path(self.config.ssh_key_path, True):
             logging.info('Success: on_source path validation')
         else:
             logging.error('Failure: on_source path validation')
@@ -25,13 +25,17 @@ class GithubSourceInterceptor(SourceInterceptor[GithubSourceConfig]):
         else:
             logging.error('Failure: on_source GitHub repo ' + self.config.git_repo)
 
-    def _validate_path(self, path: str) -> bool:
+    def _validate_path(self, path: str, is_file: bool) -> bool:
+        """ The is_file flag determines if validating a file or directory path """
         is_valid_path = True
-        if os.path.isdir(path):
+        if is_file and not os.path.isfile(path):
+            is_valid_path = False
+        elif not is_file and not os.path.isdir(path):
+            is_valid_path = False
+        if is_valid_path:
             logging.info('Located path: ' + path)
         else:
             logging.error('Could not locate path: ' + path)
-            is_valid_path = False
 
         return is_valid_path
 
