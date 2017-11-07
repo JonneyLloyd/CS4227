@@ -64,3 +64,7 @@ class GithubSourceConfig(ConfigModel):
     @ssh_key_path.setter
     def ssh_key_path(self, ssh_key_path: str) -> None:
         self._ssh_key_path = ssh_key_path
+
+    @attribute_property('git_command')
+    def git_command(self) -> str:
+        return self._git_command

@@ -44,3 +44,11 @@ class PythonBuildConfig(ConfigModel):
     @build_name.setter
     def build_name(self, build_name: str) -> None:
         self._build_name = build_name
+
+    @attribute_property('build_path')
+    def build_path(self) -> str:
+        return self._build_path
+
+    @attribute_property('venv_path')
+    def venv_path(self) -> str:
+        return self._venv_path

@@ -54,3 +54,7 @@ class ZipPackageConfig(ConfigModel):
     @archive_format.setter
     def archive_format(self, archive_format: str) -> None:
         self._archive_format = archive_format
+
+    @attribute_property('build_path')
+    def build_path(self) -> str:
+        return self._build_path
