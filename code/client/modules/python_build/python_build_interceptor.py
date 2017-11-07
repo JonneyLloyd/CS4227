@@ -80,7 +80,7 @@ class PythonBuildInterceptor(BuildInterceptor[PythonBuildConfig]):
 
     def _create_venv(self) -> bool:
         venv_success = True
-        venv_context_cmd = 'export WORKON_HOME=' + self.config.pre_build_path
+        venv_context_cmd = 'export WORKON_HOME=' + self.config.build_path
         venv_context_args = venv_context_cmd.split()
 
         local_shell = spur.LocalShell()
