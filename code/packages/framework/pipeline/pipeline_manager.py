@@ -1,7 +1,7 @@
 from threading import Thread
 
 from ..pipeline import Pipeline, Configs
-
+from ..util import overload
 
 class PipelineManager(object):
     class __PipelineManager(object):
@@ -10,27 +10,33 @@ class PipelineManager(object):
             self._pipeline_threads = {}
 
         # Attach an inteceptor to a named pipeline
-        def attach_interceptor(self, name, interceptor):
+        def attach_interceptor(self, name: str, interceptor: 'Interceptor'):
             dispatcher = self._pipelines[name].source_dispatcher
             dispatcher.register(interceptor)
 
-        def create_interceptor(self):
-            '''The user can create their own interceptor
-            which knows about its configs. Else we restore
-            from  a memento.'''
+        @overload
+        def create_interceptor(self, config):
+            # interceptor = Interceptor(config)
+            # return interceptor
             pass
 
-        # Create a pipeline with a name - probably needs to be something better
+        @overload
+        def create_interceptor(self, name, config):
+            # interceptor = Interceptor(config)
+            # self.attach_interceptor(name, config)
+            pass
+
+        # Create a pipeline with a name
         def create_pipeline(self, name: str) -> Pipeline:
             if not self._pipelines.get(name, None):
                 self._pipelines[name] = Pipeline()
             return self._pipelines[name]
 
         # Restore / create a pipeline from a Momento
-        def restore_from_memento(self, name):
+        def restore_from_memento(self, name) -> None:
             pipeline = self.create_pipeline(name)
-            # memento = retrieve from DB using name
-            # pipeline.restore_from_memento(memento)
+            # mementos = Config.get_from_db(name)
+            # pipeline.restore_from_memento(mementos)
 
         # Anytime we execute the pipeline we should be executing on its own thread.
         # This allows multiple pipelines to be run at once.
