@@ -64,3 +64,7 @@ class RemoteSourceConfig(ConfigModel):
     @ssh_key_path.setter
     def ssh_key_path(self, ssh_key_path: str) -> None:
         self._ssh_key_path = ssh_key_path
+
+    @attribute_property('scp_command')
+    def scp_command(self) -> str:
+        return self._scp_command

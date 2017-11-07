@@ -68,3 +68,7 @@ class LocalDeployConfig(ConfigModel):
     @packaged.setter
     def packaged(self, packaged: bool) -> None:
         self._packaged = packaged
+
+    @attribute_property('unpacked_build')
+    def unpacked_build(self) -> str:
+        return self._unpacked_build
