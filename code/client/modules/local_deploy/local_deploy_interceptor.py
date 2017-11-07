@@ -2,10 +2,10 @@ import logging
 import os.path
 from shutil import unpack_archive
 import spur
-
 from framework.interceptor import DeployInterceptor
 from framework.context import DeployContext
 from . import LocalDeployConfig
+logging.basicConfig(level=logging.INFO)
 
 
 class LocalDeployInterceptor(DeployInterceptor[LocalDeployConfig]):
@@ -13,12 +13,12 @@ class LocalDeployInterceptor(DeployInterceptor[LocalDeployConfig]):
 
     def pre_deploy(self, context: DeployContext) -> None:
         pre_deploy_success = False
-        if self._validate_path(self.config.package_path) and self._validate_path(self.config.deploy_root):
+        if self._validate_path(self.config.package_path, False) and self._validate_path(self.config.deploy_root, False):
             if self.config.packaged:
                 if self._copy_packaged_build() and self._extract_build():
                     logging.info('Success: pre_deploy for extracted build: ' + self.config.build_name)
                     pre_deploy_success = True
-            elif self._validate_path(self.config.unpacked_build):
+            elif self._validate_path(self.config.unpacked_build, False):
                 logging.info('Success: pre_deploy for unpackaged build: ' + self.config.build_name)
                 pre_deploy_success = True
         if not pre_deploy_success:
@@ -33,7 +33,7 @@ class LocalDeployInterceptor(DeployInterceptor[LocalDeployConfig]):
     def post_deploy(self, context: DeployContext) -> None:
         post_deploy_success = True
         for script in self.config.script_list:
-            if self._validate_path(script):
+            if self._validate_path(script, True):
                 logging.info('Found path to script: ' + script)
             else:
                 logging.error('Failed to find path to script')
@@ -43,13 +43,17 @@ class LocalDeployInterceptor(DeployInterceptor[LocalDeployConfig]):
         else:
             logging.error('Failure: post_deploy script execution for build: ' + self.config.build_name)
 
-    def _validate_path(self, path: str) -> bool:
+    def _validate_path(self, path: str, is_file: bool) -> bool:
+        """ The is_file flag determines if validating a file or directory path """
         is_valid_path = True
-        if os.path.isabs(path):
-            logging.info('Located ' + path.__name__ + ": " + path)
-        else:
-            logging.error('Could not locate ' + path.__name__ + ": " + path)
+        if is_file and not os.path.isfile(path):
             is_valid_path = False
+        elif not is_file and not os.path.isdir(path):
+            is_valid_path = False
+        if is_valid_path:
+            logging.info('Located path: ' + path)
+        else:
+            logging.error('Could not locate path: ' + path)
 
         return is_valid_path
 

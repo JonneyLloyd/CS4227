@@ -5,6 +5,7 @@ import spur
 from framework.interceptor import BuildInterceptor
 from framework.context import BuildContext
 from . import PythonBuildConfig
+logging.basicConfig(level=logging.INFO)
 
 
 class PythonBuildInterceptor(BuildInterceptor[PythonBuildConfig]):
@@ -39,10 +40,10 @@ class PythonBuildInterceptor(BuildInterceptor[PythonBuildConfig]):
 
     def _validate_path(self, path: str) -> bool:
         is_valid_path = True
-        if os.path.isabs(path):
-            logging.info('Located ' + path.__name__ + ": " + path)
+        if os.path.isdir(path):
+            logging.info('Located path: ' + path)
         else:
-            logging.error('Could not locate ' + path.__name__ + ": " + path)
+            logging.error('Could not locate path: ' + path)
             is_valid_path = False
 
         return is_valid_path

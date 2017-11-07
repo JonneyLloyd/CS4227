@@ -1,10 +1,11 @@
 import os.path
 import logging
 from shutil import make_archive
+
 from framework.context import PackageContext
 from framework.interceptor import PackageInterceptor
-
 from . import ZipPackageConfig
+logging.basicConfig(level=logging.INFO)
 
 
 class ZipPackageInterceptor(PackageInterceptor[ZipPackageConfig]):
@@ -25,22 +26,22 @@ class ZipPackageInterceptor(PackageInterceptor[ZipPackageConfig]):
 
     def _validate_path(self, path: str) -> bool:
         is_valid_path = True
-        if os.path.isabs(path):
-            logging.info('Located ' + path.__name__ + ": " + path)
+        if os.path.isdir(path):
+            logging.info('Located path: ' + path)
         else:
-            logging.error('Could not locate ' + path.__name__ + ": " + path)
+            logging.error('Could not locate path: ' + path)
             is_valid_path = False
 
         return is_valid_path
 
     def _archive_format_command(self, format) -> bool:
         found_format = True
-        archive_list = {
+        archive_list = [
             'zip',  # compression
             'gztar',  # compression
             'xztar',  # compression
             'tar'  # archive only
-        }
+        ]
         if format in archive_list:
             self._archive(format)
             logging.info('Packaged build with format: ' + format)
