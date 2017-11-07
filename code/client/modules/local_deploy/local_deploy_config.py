@@ -65,6 +65,6 @@ class LocalDeployConfig(ConfigModel):
     def packaged(self) -> bool:
         return self._packaged
 
-    @x.setter
+    @packaged.setter
     def packaged(self, packaged: bool) -> None:
         self._packaged = packaged
