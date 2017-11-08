@@ -1,5 +1,7 @@
 from typing import Type
 
+from flask import Flask
+
 from ..config import ConfigModel
 from ..interceptor import ConfigurableInterceptor
 from ..control import ModuleRegistry
@@ -11,6 +13,10 @@ class PipelineServer:
 
     def __init__(self, config: ServerConfig) -> None:
         self._app = AppFactory.create_app(config)
+
+    @property
+    def app(self) -> Flask:
+        return self._app
 
     def start(self) -> None:
         self._app.run()
