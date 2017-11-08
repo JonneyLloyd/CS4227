@@ -4,9 +4,7 @@ from os import environ
 from client.config import TestConfig
 from client.modules.demo import DemoInterceptor
 from framework.config import ConfigModel, attribute_property
-from framework.control import ModuleRegistry
-from framework.interceptor import StorageInterceptor
-from framework.pipeline import PipelineBase
+from framework.pipeline import Pipeline
 from framework.server import PipelineServer
 from framework.server.app_factory import AppFactory
 from framework.store.store_factory import StoreFactory
@@ -17,7 +15,6 @@ class DummyConfig(ConfigModel):
     __documentname__ = 'dummy_config'
 
     def __init__(self):
-        ModuleRegistry.register(self.__class__, StorageInterceptor)
         self._dummy = None
 
     @property
@@ -33,7 +30,7 @@ class DummyConfig(ConfigModel):
         self._dummy = dummy
 
 
-class DummyPipeline(PipelineBase):
+class DummyPipeline(Pipeline):
     ...
 
 
@@ -53,7 +50,7 @@ class Tests(TestCase):
     def test_memento_save_restore(self):
         server = PipelineServer(TestConfig())
         server.register_module(DummyConfig, DemoInterceptor)
-        store = StoreFactory.create_store(server)
+        store = StoreFactory.create_store()
 
         dummy_config = DummyConfig()
         dummy_config.dummy = 'random value'
@@ -62,14 +59,13 @@ class Tests(TestCase):
         dummy_pipeline.config = [dummy_config.create_memento()]
         pipeline_memento = dummy_pipeline.create_memento()
 
-        store.save(pipeline_memento)
-        restored_pipeline_memento = store.restore('DummyPipeline')
+        store.save_pipeline('dummy_pipeline', pipeline_memento)
+        restored_pipeline_memento = store.restore_pipeline('dummy_pipeline')
 
-        assert pipeline_memento.name == restored_pipeline_memento.name
         assert pipeline_memento.config[0].config == restored_pipeline_memento.config[0].config
 
         restored_pipeline = DummyPipeline()
         restored_pipeline.set_memento(restored_pipeline_memento)
         assert dummy_pipeline.config[0].config == restored_pipeline.config[0].config
 
-        store.delete('DummyPipeline')
+        store.delete_pipeline('dummy_pipeline')
