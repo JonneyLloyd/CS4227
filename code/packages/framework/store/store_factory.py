@@ -1,4 +1,3 @@
-from flask import Flask
 from framework.server import PipelineServer
 
 from .store_adapter import StoreAdapter
