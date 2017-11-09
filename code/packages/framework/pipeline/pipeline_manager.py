@@ -14,17 +14,17 @@ class PipelineManager(object):
             dispatcher = self._pipelines[name].source_dispatcher
             dispatcher.register(interceptor)
 
-        @overload
+        # @overload
         def create_interceptor(self, config):
             # interceptor = Interceptor(config)
             # return interceptor
             pass
 
-        @overload
-        def create_interceptor(self, name, config):
-            # interceptor = Interceptor(config)
-            # self.attach_interceptor(name, config)
-            pass
+        # @overload
+        # def create_interceptor(self, name, config):
+        #     # interceptor = Interceptor(config)
+        #     # self.attach_interceptor(name, config)
+        #     pass
 
         # Create a pipeline with a name
         def create_pipeline(self, name: str) -> Pipeline:

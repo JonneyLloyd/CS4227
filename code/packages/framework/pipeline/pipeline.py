@@ -1,7 +1,7 @@
 from framework.context import SourceContext
 from framework.dispatcher import SourceDispatcher
 from framework.pipeline import PipelineBase
-from framework.pipeline.pipline_memento import PipelineMemento
+from framework.pipeline.pipeline_memento import PipelineMemento
 
 # Define our own type annotations
 ConfigMementoList = List[ConfigMemento]
