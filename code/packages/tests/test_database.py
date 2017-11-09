@@ -9,7 +9,6 @@ from framework.server import PipelineServer
 from framework.server.app_factory import AppFactory
 from framework.store.store_factory import StoreFactory
 
-
 class DummyConfig(ConfigModel):
 
     __documentname__ = 'dummy_config'

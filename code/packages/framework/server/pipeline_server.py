@@ -1,6 +1,7 @@
 from typing import Type
 
 from flask import Flask
+from typing import Tuple
 
 from ..config import ConfigModel
 from ..interceptor import ConfigurableInterceptor
@@ -23,3 +24,6 @@ class PipelineServer:
 
     def register_module(self, config: Type[ConfigModel], interceptor: Type[ConfigurableInterceptor]) -> None:
         ModuleRegistry.register(config, interceptor)
+
+    def get_module(self, name: str) -> Tuple[ConfigModel, ConfigurableInterceptor]:
+        return ModuleRegistry.get_module(name)

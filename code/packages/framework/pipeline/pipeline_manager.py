@@ -1,6 +1,6 @@
 from threading import Thread
 
-from ..pipeline import Pipeline, Configs
+from ..pipeline import Pipeline, ConfigMementoList
 from ..util import overload
 
 class PipelineManager(object):
@@ -33,10 +33,10 @@ class PipelineManager(object):
             return self._pipelines[name]
 
         # Restore / create a pipeline from a Momento
-        def restore_from_memento(self, name) -> None:
+        def restore_from_memento(self, name, memento) -> Pipeline:
             pipeline = self.create_pipeline(name)
-            # mementos = Config.get_from_db(name)
-            # pipeline.restore_from_memento(mementos)
+            pipeline.set_memento(memento)
+            return pipeline
 
         # Anytime we execute the pipeline we should be executing on its own thread.
         # This allows multiple pipelines to be run at once.

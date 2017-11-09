@@ -1,7 +1,10 @@
+from typing import List
+
 from framework.context import SourceContext
 from framework.dispatcher import SourceDispatcher
 from framework.pipeline import PipelineBase
 from framework.pipeline.pipeline_memento import PipelineMemento
+from framework.config import ConfigMemento, ConfigModel
 
 # Define our own type annotations
 ConfigMementoList = List[ConfigMemento]
@@ -24,9 +27,10 @@ class Pipeline(PipelineBase):
         self._source_dispatcher.dispatch(SourceContext(self))
 
     def set_memento(self, memento: PipelineMemento) -> None:
-        self.config = memento.config
+        self.config = [self._create_config(config_memento) for config_memento in memento.config]
 
     def create_memento(self) -> PipelineMemento:
         memento = PipelineMemento()
-        memento.config = self.config
+        configs = [config.create_memento() for config in self.config]
+        memento.config = configs
         return memento
