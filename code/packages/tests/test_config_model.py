@@ -75,3 +75,62 @@ class TestConfigModel(unittest.TestCase):
         p = ParentConfig()
         p.set_memento(memento)
         self.assertEqual(p.create_memento().config, memento.config)
+
+    def test_create_schema(self):
+        schema = ChildConfig.create_schema()
+        self.assertEqual(
+            schema,
+            {
+                'documentname': 'child_config',
+                'type': 'object',
+                'properties': {
+                    'numbers': {
+                        'type': 'object',
+                        'ref': 'definitions/list[integer]'
+                    }
+                },
+                'definitions': {
+                    'list[integer]': {
+                        'type': 'list', 'type_params': ['integer']
+                    }
+                }
+            }
+        )
+
+    def test_create_schema_nested(self):
+        schema = ParentConfig.create_schema()
+        self.assertEqual(
+            schema,
+            {
+                'documentname': 'parent',
+                'type': 'object',
+                'properties': {
+                    'child': {
+                        'type': 'object',
+                        'ref': 'definitions/child_config'
+                    },
+                    'amazing': {
+                        'type': 'string'
+                    }
+                },
+                'required': ['child', 'amazing'],
+                'definitions': {
+                    'child_config': {
+                        'documentname': 'child_config',
+                        'type': 'object',
+                        'properties': {
+                            'numbers': {
+                                'type': 'object',
+                                'ref': 'definitions/list[integer]'
+                            }
+                        },
+                        'definitions': {
+                            'list[integer]': {
+                                'type': 'list',
+                                'type_params': ['integer']
+                            }
+                        }
+                    }
+                }
+            }
+        )
