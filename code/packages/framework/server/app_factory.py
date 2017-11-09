@@ -2,12 +2,12 @@ import os
 from flask import Flask
 
 from .config import ServerConfig
-from .extensions import api
+from .extensions import api, dynamo
 
 
 class AppFactory(object):
     @staticmethod
-    def create_app(config: ServerConfig):
+    def create_app(config: ServerConfig) -> Flask:
         app = Flask(__name__)
         app.config.from_object(config)
         with app.app_context():
@@ -27,3 +27,5 @@ class AppFactory(object):
     @staticmethod
     def _load_extensions_after(app: Flask) -> None:
         api.init_app(app)
+        dynamo.init_app(app)
+        dynamo.create_all()

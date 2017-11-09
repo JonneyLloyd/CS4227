@@ -9,6 +9,8 @@ Flask==0.12.2
 Flask-RESTful==0.3.6
 cryptography==2.1.2
 inflection==0.3.1
+boto3==1.4.7
+flask-dynamo==0.1.2
 
 # Testing
 nose2==0.6.5

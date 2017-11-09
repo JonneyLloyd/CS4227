@@ -1,3 +1,5 @@
+from os import environ
+
 from framework.server.config import ServerConfig
 
 
@@ -12,6 +14,21 @@ class DevConfig(ServerConfig):
     LOG_LEVEL = 'verbose'
     DATABASE_URI = ''
     DATABASE_KEY = ''
+    environ['AWS_ACCESS_KEY_ID'] = 'dummy'
+    environ['AWS_SECRET_ACCESS_KEY'] = 'dummy'
+    AWS_ACCESS_KEY_ID = environ.get('AWS_ACCESS_KEY_ID')
+    AWS_SECRET_ACCESS_KEY = environ.get('AWS_SECRET_ACCESS_KEY')
+    DYNAMO_ENABLE_LOCAL = True
+    DYNAMO_LOCAL_HOST = 'localhost'
+    DYNAMO_LOCAL_PORT = 8000
+    DYNAMO_TABLES = [
+        dict(
+            TableName='mementos',
+            KeySchema=[dict(AttributeName='type', KeyType='HASH')],
+            AttributeDefinitions=[dict(AttributeName='type', AttributeType='S')],
+            ProvisionedThroughput=dict(ReadCapacityUnits=5, WriteCapacityUnits=5),
+        )
+    ]
 
 
 class TestConfig(ServerConfig):
@@ -20,3 +37,18 @@ class TestConfig(ServerConfig):
     LOG_LEVEL = 'debug'
     DATABASE_URI = ''
     DATABASE_KEY = ''
+    environ['AWS_ACCESS_KEY_ID'] = 'dummy'
+    environ['AWS_SECRET_ACCESS_KEY'] = 'dummy'
+    AWS_ACCESS_KEY_ID = environ.get('AWS_ACCESS_KEY_ID')
+    AWS_SECRET_ACCESS_KEY = environ.get('AWS_SECRET_ACCESS_KEY')
+    DYNAMO_ENABLE_LOCAL = True
+    DYNAMO_LOCAL_HOST = 'localhost'
+    DYNAMO_LOCAL_PORT = 8000
+    DYNAMO_TABLES = [
+        dict(
+            TableName='mementos',
+            KeySchema=[dict(AttributeName='type', KeyType='HASH')],
+            AttributeDefinitions=[dict(AttributeName='type', AttributeType='S')],
+            ProvisionedThroughput=dict(ReadCapacityUnits=5, WriteCapacityUnits=5),
+        )
+    ]
