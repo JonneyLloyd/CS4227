@@ -4,7 +4,7 @@ from .context_object import ContextObject
 
 class Dispatcher():
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.interceptor_list = []
 
     def callback(self, context: ContextObject) -> None:

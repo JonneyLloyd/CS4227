@@ -16,6 +16,7 @@ def main() -> None:
     visitor_demo()
 
 
+
 def factory_demo() -> None:
     factory = ShapeFactory()
     rectangle = factory.get_shape("rectangle")
@@ -32,7 +33,7 @@ def bridge_demo() -> None:
     red_circle.draw()
     green_circle.draw()
 
-def interceptor_demo():
+def interceptor_demo() -> None:
     #framework side
     dispatcher = Dispatcher()
     context = Context()
@@ -86,6 +87,8 @@ def visitor_demo() -> None:
     element = ConcreteElement()
     visitor = ConcreteVisitor()
     element.accept(visitor)
+
+
 
 if __name__ == '__main__':
     main()

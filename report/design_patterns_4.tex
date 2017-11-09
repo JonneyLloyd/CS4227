@@ -1,4 +1,7 @@
 \chapter{Design Patterns}
+TODO context and consequences and support for scenario.
+TODO generic factory, plugable adapter, command
+TODO move bridge and state to appendices?
 
 \section{Creational}
 Creational design patterns are design patterns that deal with object creation
@@ -11,6 +14,9 @@ The Abstract Factory design pattern adds another layer of abstraction to the Fac
 The Abstract Factory provides us with a framework that allows us to create families of related or
 dependent objects without specifying their concrete classes. So at runtime, the abstract factory is
 coupled with any desired factory which can create objects of desired type.
+
+\subsection{Generic Factory Method}
+TODO
 
 \section{Structural}
 Structural design patterns are design patterns that ease the design by identifying a simple way to
@@ -29,10 +35,16 @@ Use when:
 \end{itemize}
 
 \subsection{Composite}
-The composite pattern is used to group objects into tree structures to represent whole-part hierachies. This pattern lets clients treat individual objects and compositions of objects uniformly. \cite{sourcemaking}
+The composite pattern is used to group objects into tree structures to represent whole-part hierarchies. This pattern lets clients treat individual objects and compositions of objects uniformly. \cite{sourcemaking}
 
-\section{Behavioral}
-In software engineering, behavioral design patterns are design patterns that identify common communication patterns between objects and realize these patterns. By doing so, these patterns increase flexibility in carrying out this communication. \cite{sourcemaking}
+\subsection{Pluggable Adapter}
+TODO
+
+\section{Behavioural}
+In software engineering, behavioural design patterns are design patterns that identify common communication patterns between objects and realize these patterns. By doing so, these patterns increase flexibility in carrying out this communication. \cite{sourcemaking}
+
+\subsection{Command}
+TODO
 
 \subsection{Memento}
 The memento pattern allows us to capture and externalise an objects state so that the object can be returned to this state later on.
@@ -54,3 +66,15 @@ The visitors purpose is to abstract functionality that can be applied to an aggr
 	\item The visitor asks the element to accept it's visit.
 	\item The element accepts and passes itself to the visitors visit method.
 \end{itemize}
+
+\section{Architectural}
+Architectural patterns are similar to software design pattern but with a broader scope. The architectural patterns address various issues in software engineering, such as computer hardware performance limitations, high availability and minimization of a business risk. Architectural patterns have often been implemented within software frameworks such as Apache Tomcat and Glassfish.
+
+"\textit{Architecture patterns help define the basic characteristics and behavior of an application. For example, some architecture patterns naturally lend themselves toward highly scalable applications,
+whereas other architecture patterns naturally lend themselves toward applications that are highly agile.}" \citep{patterns}
+
+\subsection{Interceptor}
+The Interceptor is used for developing frameworks that can be extended transparently, allowing out-of-band services to register with the framework using predefined interfaces. The framework creates  a dispatched and context object. The client creates a concrete interceptor from the interface. The client attaches the interceptor to the dispatcher. When an event occurs in the framework it will pass the context object to the dispatcher which will iterate all registered interceptor, using the observer design pattern method. The context object is passed to the interceptor where the client can then access the internals of the framework.
+
+\subsection{REST}
+TODO
