@@ -11,13 +11,15 @@ def main() -> None:
     running the deploy demo:
     |-- /home/$USER/fw_test
       |-- src_dir
-        |-- src_japp
+        |-- src_japp (this directory can be found in CS4227/code/src_japp)
           |-- requirements.txt
           |-- run.py
       |-- pre_build_dir
       |-- build_dir
       |-- pkg_dir
       |-- deploy_dir
+
+    Make sure to replace "jay" in path configs below with your username
     """
 
     pipeline = Pipeline()
@@ -25,9 +27,9 @@ def main() -> None:
     lsrc_config = LocalSourceConfig('/home/jay/fw_test/src_dir/src_japp', '/home/jay/fw_test/pre_build_dir')
     build_config = PythonBuildConfig('/home/jay/fw_test/pre_build_dir/src_japp', '/home/jay/fw_test/build_dir',
                                      'build_japp')
-    pkg_config = ZipPackageConfig('/home/jay/fw_test/build_dir', 'build_japp', '/home/jay/fw_test/pkg_dir/pkg_japp', 'zip')
-    deploy_config = LocalDeployConfig('/home/jay/fw_test/pkg_dir/pkg_japp', 'build_japp', '/home/jay/fw_test/deploy_dir',
-                                      ['/home/jay/fw_test/deploy_dir/build_japp/app/run.py'], True)
+    pkg_config = ZipPackageConfig('/home/jay/fw_test/build_dir', 'build_japp', '/home/jay/fw_test/pkg_dir/', 'zip')
+    deploy_config = LocalDeployConfig('/home/jay/fw_test/pkg_dir/build_japp.zip', 'build_japp', '/home/jay/fw_test/build_dir',
+                                      ['/home/jay/fw_test/build_dir/build_japp/app/run.py'], False)
 
     lsrc_interceptor = LocalSourceInterceptor()
     lsrc_interceptor.config = lsrc_config

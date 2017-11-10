@@ -9,11 +9,12 @@ logging.basicConfig(level=logging.INFO)
 
 
 class ZipPackageInterceptor(PackageInterceptor[ZipPackageConfig]):
-    """ Package up build with archive/compression """
+    """ Package up build with archive/compression
+        Outputs packaged build with package name: build_name.<archive_format> """
 
     def pre_package(self, context: PackageContext) -> None:
         if self._validate_path(self.config.build_path) and \
-           self._validate_path(self.config.package_path):
+           self._validate_path(self.config.package_root):
             logging.info('Success: pre_package for build: ' + self.config.build_name)
         else:
             logging.error('Failure: pre_package for build: ' + self.config.build_name)

@@ -11,6 +11,7 @@ class BuildDispatcher():
 
     def dispatch(self, context: BuildContext) -> None:
         for interceptor in self._interceptors:
+            interceptor.pre_build(context)
             interceptor.on_build(context)
 
     def register(self, interceptor: BuildInterceptor) -> None:
