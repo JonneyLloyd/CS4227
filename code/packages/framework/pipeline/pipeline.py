@@ -42,4 +42,3 @@ class Pipeline(PipelineBase):
         memento = PipelineMemento()
         memento.config = self.config
         return memento
-
