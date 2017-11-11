@@ -16,16 +16,16 @@ class GithubSourceInterceptor(SourceInterceptor[GithubSourceConfig]):
         source_success = True
         if self._validate_path(self.config.pre_build_path, False) and \
            self._validate_path(self.config.ssh_key_path, True):
-            logging.info('Success: on_source path validation')
+            logging.info('github_source_interceptor: Success: on_source path validation')
         else:
-            logging.error('Failure: on_source path validation')
+            logging.error('github_source_interceptor: Failure: on_source path validation')
             source_success = False
 
         if source_success and self._clone_repo():
-            logging.info('Success: on_source GitHub repo ' + self.config.git_repo)
+            logging.info('github_source_interceptor: Success: on_source GitHub repo ' + self.config.git_repo)
             context.set_state({'on_source': 'successful'})
         else:
-            logging.error('Failure: on_source GitHub repo ' + self.config.git_repo)
+            logging.error('github_source_interceptor: Failure: on_source GitHub repo ' + self.config.git_repo)
             context.set_state({'on_source': 'failed'})
 
     def _validate_path(self, path: str, is_file: bool) -> bool:
@@ -36,9 +36,9 @@ class GithubSourceInterceptor(SourceInterceptor[GithubSourceConfig]):
         elif not is_file and not os.path.isdir(path):
             is_valid_path = False
         if is_valid_path:
-            logging.info('Located path: ' + path)
+            logging.info('github_source_interceptor: Located path: ' + path)
         else:
-            logging.error('Could not locate path: ' + path)
+            logging.error('github_source_interceptor: Could not locate path: ' + path)
 
         return is_valid_path
 
@@ -49,9 +49,9 @@ class GithubSourceInterceptor(SourceInterceptor[GithubSourceConfig]):
                       '; cd ' + self.config.pre_build_path + '; ' + self.config.git_command
         try:
             local_shell.run(['sh', '-c', ssh_git_cmd])
-            logging.info('Git clone succeeded: ' + self.config.git_command)
+            logging.info('github_source_interceptor: Git clone succeeded: ' + self.config.git_command)
         except spur.RunProcessError:
-            logging.error('Git clone failed: ' + self.config.git_command)
+            logging.error('github_source_interceptor: Git clone failed: ' + self.config.git_command)
             clone_success = False
 
         return clone_success
