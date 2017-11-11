@@ -29,7 +29,7 @@ def main() -> None:
                                      'build_japp')
     pkg_config = ZipPackageConfig('/home/jay/fw_test/build_dir', 'build_japp', '/home/jay/fw_test/pkg_dir/', 'zip')
     deploy_config = LocalDeployConfig('/home/jay/fw_test/pkg_dir/build_japp.zip', 'build_japp', '/home/jay/fw_test/build_dir',
-                                      ['/home/jay/fw_test/build_dir/build_japp/app/run.py'], False)
+                                      ['/home/jay/fw_test/build_dir/build_japp/app/run.py'], packaged=False)
 
     lsrc_interceptor = LocalSourceInterceptor()
     lsrc_interceptor.config = lsrc_config
