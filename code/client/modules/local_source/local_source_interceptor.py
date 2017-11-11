@@ -5,12 +5,14 @@ import spur
 from framework.context import SourceContext
 from framework.interceptor import SourceInterceptor
 from . import LocalSourceConfig
+logging.basicConfig(level=logging.INFO)
 
 
 class LocalSourceInterceptor(SourceInterceptor[LocalSourceConfig]):
     """ Copy source from local source to local directory for pre-build """
 
     def on_source(self, context: SourceContext) -> None:
+        context.set_state({'on_source': 'waiting'})
         source_success = True
         if self._validate_path(self.config.pre_build_path) and \
            self._validate_path(self.config.source_path):
@@ -21,15 +23,17 @@ class LocalSourceInterceptor(SourceInterceptor[LocalSourceConfig]):
 
         if source_success and self._copy_local_source():
             logging.info('Success: on_source for local source')
+            context.set_state({'on_source': 'successful'})
         else:
             logging.error('Failure: on_source for local source')
+            context.set_state({'on_source': 'failed'})
 
     def _validate_path(self, path: str) -> bool:
         is_valid_path = True
-        if os.path.isabs(path):
-            logging.info('Located ' + path.__name__ + ": " + path)
+        if os.path.isdir(path):
+            logging.info('Located path: ' + path)
         else:
-            logging.error('Could not locate ' + path.__name__ + ": " + path)
+            logging.error('Could not locate path: ' + path)
             is_valid_path = False
 
         return is_valid_path
