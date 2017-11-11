@@ -2,6 +2,7 @@ from threading import Thread
 
 from ..pipeline import Pipeline, ConfigMementoList
 from ..util import overload
+from ..config import ConfigModel
 
 class PipelineManager(object):
     class __PipelineManager(object):
@@ -25,6 +26,12 @@ class PipelineManager(object):
         #     # interceptor = Interceptor(config)
         #     # self.attach_interceptor(name, config)
         #     pass
+
+        def add_config_to_pipeline(self, name:str, config: ConfigModel, idx: int):
+            pipeline = self._pipelines.get(name, None)
+            if pipeline:
+                pipeline.configs.insert(idx, config)
+            return pipeline
 
         # Create a pipeline with a name
         def create_pipeline(self, name: str) -> Pipeline:

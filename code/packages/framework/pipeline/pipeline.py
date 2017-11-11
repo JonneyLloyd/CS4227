@@ -12,7 +12,6 @@ ConfigMementoList = List[ConfigMemento]
 class Pipeline(PipelineBase):
     def __init__(self) -> None:
         self._source_dispatcher: SourceDispatcher = SourceDispatcher()
-        self._configs: Configs = None
 
     def _create_config(self, memento: ConfigMemento):
         config = ConfigModel()
@@ -28,6 +27,9 @@ class Pipeline(PipelineBase):
 
     def set_memento(self, memento: PipelineMemento) -> None:
         self.config = [self._create_config(config_memento) for config_memento in memento.config]
+        for config in self.config:
+            con_int_tup = ModuleRegistry.get_module(config.__documentname__)
+            self.source_dispatcher.register(con_int_tup[1])
 
     def create_memento(self) -> PipelineMemento:
         memento = PipelineMemento()
