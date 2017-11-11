@@ -28,27 +28,27 @@ class PythonBuildInterceptor(BuildInterceptor[PythonBuildConfig]):
         context.set_state({'pre_build': 'in progress', 'on_build': 'waiting'})
         if self._validate_path(self.config.pre_build_path) \
            and self._create_build_dir() and self._copy_source_for_build():
-            logging.info('Success: pre_build for build ' + self.config.build_name)
+            logging.info('python_build_interceptor: Success: pre_build for build ' + self.config.build_name)
             context.set_state({'pre_build': 'successful', 'on_build': 'waiting'})
         else:
-            logging.error('Failure: pre_build for build ' + self.config.build_name)
+            logging.error('python_build_interceptor: Failure: pre_build for build ' + self.config.build_name)
             context.set_state({'pre_build': 'failed', 'on_build': 'waiting'})
 
     def on_build(self, context: BuildContext) -> None:
         context.set_state({'pre_build': 'successful', 'on_build': 'in progress'})
         if self._create_venv() and self._install_requirements():
-            logging.info('Success: on_build for build: ' + self.config.build_name)
+            logging.info('python_build_interceptor: Success: on_build for build: ' + self.config.build_name)
             context.set_state({'pre_build': 'successful', 'on_build': 'successful'})
         else:
-            logging.error('Failure: on_build for build: ' + self.config.build_name)
+            logging.error('python_build_interceptor: Failure: on_build for build: ' + self.config.build_name)
             context.set_state({'pre_build': 'successful', 'on_build': 'failed'})
 
     def _validate_path(self, path: str) -> bool:
         is_valid_path = True
         if os.path.isdir(path):
-            logging.info('Located path: ' + path)
+            logging.info('python_build_interceptor: Located path: ' + path)
         else:
-            logging.error('Could not locate path: ' + path)
+            logging.error('python_build_interceptor: Could not locate path: ' + path)
             is_valid_path = False
 
         return is_valid_path
@@ -61,9 +61,9 @@ class PythonBuildInterceptor(BuildInterceptor[PythonBuildConfig]):
         local_shell = spur.LocalShell()
         try:
             local_shell.run(mkdir_args)
-            logging.info('Created build directory: ' + self.config.build_path)
+            logging.info('python_build_interceptor: Created build directory: ' + self.config.build_path)
         except spur.RunProcessError:
-            logging.error('Creating build directory failed: ' + self.config.build_path)
+            logging.error('python_build_interceptor: Creating build directory failed: ' + self.config.build_path)
             create_success = False
 
         return create_success
@@ -75,9 +75,9 @@ class PythonBuildInterceptor(BuildInterceptor[PythonBuildConfig]):
         local_shell = spur.LocalShell()
         try:
             local_shell.run(['sh', '-c', copy_cmd])
-            logging.info('Copying source to build directory succeeded: ' + copy_cmd)
+            logging.info('python_build_interceptor: Copying source to build directory succeeded: ' + copy_cmd)
         except spur.RunProcessError:
-            logging.error('Copying source to build directory failed: ' + copy_cmd)
+            logging.error('python_build_interceptor: Copying source to build directory failed: ' + copy_cmd)
             copy_success = False
 
         return copy_success
@@ -87,9 +87,9 @@ class PythonBuildInterceptor(BuildInterceptor[PythonBuildConfig]):
         local_shell = spur.LocalShell()
         try:
             local_shell.run(['sh', '-c', 'python3 -m venv --copies ' + self.config.venv_path])
-            logging.info('Created virtual environment: ' + self.config.venv_path)
+            logging.info('python_build_interceptor: Created virtual environment: ' + self.config.venv_path)
         except spur.RunProcessError:
-            logging.error('Creating virtual environment failed: ' + self.config.venv_path)
+            logging.error('python_build_interceptor: Creating virtual environment failed: ' + self.config.venv_path)
             venv_success = False
 
         return venv_success
@@ -102,9 +102,9 @@ class PythonBuildInterceptor(BuildInterceptor[PythonBuildConfig]):
         local_shell = spur.LocalShell()
         try:
             local_shell.run(['sh', '-c', pip_install_command])
-            logging.info('Installed pip requirements from ' + requirements_path)
+            logging.info('python_build_interceptor: Installed pip requirements from ' + requirements_path)
         except spur.RunProcessError:
-            logging.error('Failed to pip install dependencies from ' + requirements_path)
+            logging.error('python_build_interceptor: Failed to pip install dependencies from ' + requirements_path)
             install_success = False
 
         return install_success
