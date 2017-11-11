@@ -1,4 +1,5 @@
 from ...pipeline import Pipeline
+from ...api.manage_pipelines import ManagePipelines
 from flask import g, request, abort, jsonify
 from flask_restful import Resource
 
@@ -21,18 +22,15 @@ class PipelineListAPI(Resource):
     def post(self):
         #Create new pipeline
         data = request.get_json()
-        # pipeline = self.pipeline_manager.create_pipeline(data.name)
-        return {'pipeline': data.name,
-                'Location': url_for('get_pipeline', name = data.name, _external = True)}, 201
+        pipeline = ManagePipeLines.create_pipeline(data.name)
+        return {'Location': api.url_for (PipelineAPI, title=data.name)}, 201
 
 
 @api.route('/api/v1.0/pipeline/<str:title>')
 class PipelineAPI(Resource):
     def get(self, title):
-        '''
-        Retrieve a pipeline
-        '''
-        pass
+        pipeline = ManagePipeLines.get_pipeline(title)
+        return {'Location': api.url_for(PipelineAPI, title= title)}, 201
 
     def put(self, title):
         '''
@@ -41,10 +39,8 @@ class PipelineAPI(Resource):
         pass
 
     def delete(self, title):
-        '''
-        Delete an existing pipeline
-        '''
-        pass
+        ManagePipeLines.delete_pipeline(title)
+        return 201
 
 @api.route('/api/v1.0/queue/pipeline/<str:title>')
 class PipelineQueue:
@@ -54,7 +50,5 @@ class PipelineQueue:
         """
 
     def post(self, title):
-        """
-        start the pipeline
-        pipeline = self.pipeline_manager.create_pipeline(title)
-        """
+        ManagePipeLines.execute_pipeline(title)
+        return 201

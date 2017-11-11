@@ -1,4 +1,5 @@
 from ..config import ConfigMapper
+from ..api.manage_configs import ManageConfigs
 from flask import g, request, abort, jsonify, get_flashed_messages
 from flask_restful import Resource
 from extension import api
@@ -15,29 +16,23 @@ class ConfigListAPI(Resource):
         pass
 
     def post(self):
-        '''
-        Create new config on pipeline
-        User needs to supply the index & document name
-        '''
-        pass
+        #Create new config on pipeline
+        data = request.get_json()
+        ManageConfigs.create_config_model(data.name)
+        return {'Location': api.url_for (ConfigAPI, title=data.name)}, 201
 
 @api.route('/api/v1.0/pipeline/<str:title>/config_model/<int:index>')
 class ConfigAPI(Resource):
-    def get(self, index):
-        '''
-        Retrieve a config from pipeline
-        module also passed in
-        '''
-        pass
+    def get(self, title, index):
+        config = ManageConfigs.get_config(title, index)
+        return {'Location': api.url_for (ConfigAPI, title=index)}, 201
 
-    def put(self, index):
+    def put(self, title, index):
         '''
         Update an existing config from pipeline
         '''
         pass
 
-    def delete(self, index):
-        '''
-        Delete an existing config from pipeline
-        '''
-        pass
+    def delete(self, title, index):
+        ManageConfigs.delete_config(title, index)
+        return 201
