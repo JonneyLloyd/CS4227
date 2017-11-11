@@ -5,6 +5,7 @@ from framework.dispatcher import SourceDispatcher
 from framework.pipeline import PipelineBase
 from framework.pipeline.pipeline_memento import PipelineMemento
 from framework.config import ConfigMemento, ConfigModel
+from framework.control import ModuleRegistry
 
 # Define our own type annotations
 ConfigMementoList = List[ConfigMemento]
@@ -13,9 +14,13 @@ class Pipeline(PipelineBase):
     def __init__(self) -> None:
         self._source_dispatcher: SourceDispatcher = SourceDispatcher()
 
-    def _create_config(self, memento: ConfigMemento):
-        config = ConfigModel()
+    def _create_config_and_interceptor(self, memento: ConfigMemento):
+        con_int_tup = ModuleRegistry.get_module(memento.config['concrete_key'])
+        config = con_int_tup[0]()
+        interceptor = con_int_tup[1]()
         config.set_memento(memento)
+        interceptor.config = config
+        self.source_dispatcher.register(interceptor)
         return config
 
     @property
@@ -26,10 +31,8 @@ class Pipeline(PipelineBase):
         self._source_dispatcher.dispatch(SourceContext(self))
 
     def set_memento(self, memento: PipelineMemento) -> None:
-        self.config = [self._create_config(config_memento) for config_memento in memento.config]
-        for config in self.config:
-            con_int_tup = ModuleRegistry.get_module(config.__documentname__)
-            self.source_dispatcher.register(con_int_tup[1])
+        self.config = [self._create_config_and_interceptor(config_memento)
+                        for config_memento in memento.config]
 
     def create_memento(self) -> PipelineMemento:
         memento = PipelineMemento()

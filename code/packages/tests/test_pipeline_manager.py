@@ -56,43 +56,8 @@ class DemoConfig(ConfigModel):
 
     __documentname__ = 'demo'
 
-    def __init__(self, a: str=None, b: str=None) -> None:
+    def __init__(self, a: str=None) -> None:
         self._a = a
-        self._b = b
-        self._s = DemoConfigChild(7)
-        self._ss = [DemoConfigChild(1), DemoConfigChild(2)]
-
-    @attribute_property('child')
-    def s(self) -> DemoConfigChild:
-        return self._s
-
-    @s.setter
-    def s(self, s: DemoConfigChild) -> None:
-        self._s = s
-
-    @attribute_property('children')
-    def ss(self) -> List[DemoConfigChild]:
-        return self._ss
-
-    @ss.setter
-    def ss(self, ss: List[DemoConfigChild]) -> None:
-        self._ss = ss
-
-    @attribute_property('amazing')
-    def a(self) -> str:
-        return self._a
-
-    @a.setter
-    def a(self, a: str) -> None:
-        self._a = a
-
-    @attribute_property('brilliant', required=False)
-    def b(self) -> str:
-        return self._b
-
-    @b.setter
-    def b(self, b: str) -> None:
-        self._b = b
 
 class DemoInterceptor(SourceInterceptor[DemoConfig]):
     """
@@ -128,24 +93,6 @@ class TestConfig(ServerConfig):
         )
     ]
 
-class DemoConfig(ConfigModel):
-    __documentname__ = 'demo_config'
-
-    def __init__(self):
-        self._demo = None
-
-    @property
-    def demo(self) -> str:
-        return self._demo
-
-    @attribute_property('_demo')
-    def demo(self) -> str:
-        return self._demo
-
-    @demo.setter
-    def demo(self, demo: str) -> None:
-        self._demo = demo
-
 class PipelineManagerTests(TestCase):
 
     def setUp(self):
@@ -156,13 +103,12 @@ class PipelineManagerTests(TestCase):
         server.register_module(DemoConfig, DemoInterceptor)
         store = StoreFactory.create_store()
 
-        demo_config = DemoConfig()
-        demo_config.demo = 'demo value'
+        demo_config = DemoConfig('Dobby')
 
         demo_pipeline = self.pipeline_manager.create_pipeline('Dobby')
         demo_pipeline.config = [demo_config]
 
         memento = demo_pipeline.create_memento()
-        
+
         demo_pipeline2 = self.pipeline_manager.restore_from_memento('Demo', memento)
-        self.assertEqual(demo_pipeline.config[0], demo_pipeline2.config[0])
+        self.assertEqual(demo_pipeline.config[0].__class__, demo_pipeline2.config[0].__class__)

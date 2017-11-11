@@ -33,7 +33,7 @@ class ConfigModel(ConfigModelBase):
 
     def create_memento(self) -> ConfigMemento:
         name = self.__documentname__
-        config = {name: ConfigModelToMap().convert(self)}
+        config = {name: ConfigModelToMap().convert(self), 'concrete_key': name}
         memento = ConfigMemento()
         memento.config = config
         return memento

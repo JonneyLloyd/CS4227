@@ -15,17 +15,16 @@ class PipelineManager(object):
             dispatcher = self._pipelines[name].source_dispatcher
             dispatcher.register(interceptor)
 
-        # @overload
-        def create_interceptor(self, config):
-            # interceptor = Interceptor(config)
-            # return interceptor
-            pass
+        @overload
+        def create_interceptor(self, Interceptor: 'Interceptor', config: ConfigModel):
+            interceptor = Interceptor()
+            interceptor.config = config
+            return interceptor
 
-        # @overload
-        # def create_interceptor(self, name, config):
-        #     # interceptor = Interceptor(config)
-        #     # self.attach_interceptor(name, config)
-        #     pass
+        @overload
+        def create_interceptor(self, name: str, Interceptor: 'Interceptor', config: ConfigModel):
+             interceptor = self.create_interceptor(Interceptor, config)
+             self.attach_interceptor(name, config)
 
         def add_config_to_pipeline(self, name:str, config: ConfigModel, idx: int):
             pipeline = self._pipelines.get(name, None)
@@ -48,12 +47,7 @@ class PipelineManager(object):
         # Anytime we execute the pipeline we should be executing on its own thread.
         # This allows multiple pipelines to be run at once.
         def execute_pipeline(self, name: str) -> None:
-            if not self._pipeline_threads.get(name, None):
-                self._pipeline_threads[name] = Thread(target=self._pipelines[name].execute)
-            self._pipeline_threads[name].start()
-
-        def get_pipeline_info(self, name: str) -> None:
-            pass
+            self._pipelines[name].execute()
 
     # The PipelineManager is a singleton that manages multiple Pipelines.
     instance = None
