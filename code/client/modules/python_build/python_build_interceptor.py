@@ -25,17 +25,23 @@ class PythonBuildInterceptor(BuildInterceptor[PythonBuildConfig]):
     """
 
     def pre_build(self, context: BuildContext) -> None:
+        context.set_state({'pre_build': 'in progress', 'on_build': 'waiting'})
         if self._validate_path(self.config.pre_build_path) \
            and self._create_build_dir() and self._copy_source_for_build():
             logging.info('Success: pre_build for build ' + self.config.build_name)
+            context.set_state({'pre_build': 'successful', 'on_build': 'waiting'})
         else:
             logging.error('Failure: pre_build for build ' + self.config.build_name)
+            context.set_state({'pre_build': 'failed', 'on_build': 'waiting'})
 
     def on_build(self, context: BuildContext) -> None:
+        context.set_state({'pre_build': 'successful', 'on_build': 'in progress'})
         if self._create_venv() and self._install_requirements():
             logging.info('Success: on_build for build: ' + self.config.build_name)
+            context.set_state({'pre_build': 'successful', 'on_build': 'successful'})
         else:
             logging.error('Failure: on_build for build: ' + self.config.build_name)
+            context.set_state({'pre_build': 'successful', 'on_build': 'failed'})
 
     def _validate_path(self, path: str) -> bool:
         is_valid_path = True

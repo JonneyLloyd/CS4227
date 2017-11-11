@@ -1,4 +1,3 @@
-from framework.pipeline import PipelineBase
 from framework.pipeline.pipline_memento import PipelineMemento
 from ..context import SourceContext, BuildContext, PackageContext, DeployContext
 from ..dispatcher import SourceDispatcher, BuildDispatcher, PackageDispatcher, DeployDispatcher

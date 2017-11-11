@@ -12,6 +12,7 @@ class LocalDeployInterceptor(DeployInterceptor[LocalDeployConfig]):
     """ Deploy an app locally - extract if packaged, run series of scripts """
 
     def pre_deploy(self, context: DeployContext) -> None:
+        context.set_state({'pre_deploy': 'in progress', 'on_deploy': 'waiting'})
         pre_deploy_success = False
         if self._validate_path(self.config.deploy_root, False):
             if self.config.packaged and self._validate_path(self.config.package_path, True):
@@ -25,8 +26,12 @@ class LocalDeployInterceptor(DeployInterceptor[LocalDeployConfig]):
                 pre_deploy_success = True
         if not pre_deploy_success:
             logging.error('Failure: pre_deploy for build: ' + self.config.build_name)
+            context.set_state({'pre_deploy': 'failed', 'on_deploy': 'waiting'})
+        else:
+            context.set_state({'pre_deploy': 'successful', 'on_deploy': 'waiting'})
 
     def on_deploy(self, context: DeployContext) -> None:
+        context.set_state({'pre_deploy': 'successful', 'on_deploy': 'in progress'})
         on_deploy_success = True
         for script in self.config.script_list:
             if self._validate_path(script, True):
@@ -36,8 +41,10 @@ class LocalDeployInterceptor(DeployInterceptor[LocalDeployConfig]):
                 on_deploy_success = False
         if on_deploy_success and self._execute_local_scripts():
             logging.info('Success: on_deploy script execution for build: ' + self.config.build_name)
+            context.set_state({'pre_deploy': 'successful', 'on_deploy': 'successful'})
         else:
             logging.error('Failure: on_deploy script execution for build: ' + self.config.build_name)
+            context.set_state({'pre_deploy': 'successful', 'on_deploy': 'failed'})
 
     def _validate_path(self, path: str, is_file: bool) -> bool:
         """ The is_file flag determines if validating a file or directory path """

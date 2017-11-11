@@ -13,17 +13,23 @@ class ZipPackageInterceptor(PackageInterceptor[ZipPackageConfig]):
         Outputs packaged build with package name: build_name.<archive_format> """
 
     def pre_package(self, context: PackageContext) -> None:
+        context.set_state({'pre_package': 'in progress', 'on_package': 'waiting'})
         if self._validate_path(self.config.build_path) and \
            self._validate_path(self.config.package_root):
             logging.info('Success: pre_package for build: ' + self.config.build_name)
+            context.set_state({'pre_package': 'successful', 'on_package': 'waiting'})
         else:
             logging.error('Failure: pre_package for build: ' + self.config.build_name)
+            context.set_state({'pre_package': 'failed', 'on_package': 'waiting'})
 
     def on_package(self, context: PackageContext) -> None:
+        context.set_state({'pre_package': 'successful', 'on_package': 'in progress'})
         if self._archive_format_command(self.config.archive_format):
             logging.info('Success: on_package for build: ' + self.config.build_name)
+            context.set_state({'pre_package': 'successful', 'on_package': 'successful'})
         else:
             logging.error('Fail: on_package for build: ' + self.config.build_name)
+            context.set_state({'pre_package': 'successful', 'on_package': 'failed'})
 
     def _validate_path(self, path: str) -> bool:
         is_valid_path = True

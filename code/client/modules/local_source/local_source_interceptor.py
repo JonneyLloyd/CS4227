@@ -12,6 +12,7 @@ class LocalSourceInterceptor(SourceInterceptor[LocalSourceConfig]):
     """ Copy source from local source to local directory for pre-build """
 
     def on_source(self, context: SourceContext) -> None:
+        context.set_state({'on_source': 'waiting'})
         source_success = True
         if self._validate_path(self.config.pre_build_path) and \
            self._validate_path(self.config.source_path):
@@ -22,8 +23,10 @@ class LocalSourceInterceptor(SourceInterceptor[LocalSourceConfig]):
 
         if source_success and self._copy_local_source():
             logging.info('Success: on_source for local source')
+            context.set_state({'on_source': 'successful'})
         else:
             logging.error('Failure: on_source for local source')
+            context.set_state({'on_source': 'failed'})
 
     def _validate_path(self, path: str) -> bool:
         is_valid_path = True

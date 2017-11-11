@@ -12,6 +12,7 @@ class RemoteSourceInterceptor(SourceInterceptor[RemoteSourceConfig]):
     """ Copy a remote source to a local directory for pre-build """
 
     def on_source(self, context: SourceContext) -> None:
+        context.set_state({'on_source': 'in progress'})
         source_success = True
         if self._validate_path(self.config.pre_build_path, False) and \
            self._validate_path(self.config.ssh_key_path, True) and \
@@ -22,8 +23,10 @@ class RemoteSourceInterceptor(SourceInterceptor[RemoteSourceConfig]):
 
         if source_success and self._copy_remote_source():
             logging.info('Success: on_source for remote path: ' + self.config.remote_path)
+            context.set_state({'on_source': 'successful'})
         else:
             logging.error('Fail: on_source for remote path: ' + self.config.remote_path)
+            context.set_state({'on_source': 'failed'})
 
     def _validate_path(self, path: str, is_file: bool) -> bool:
         """ The is_file flag determines if validating a file or directory path """

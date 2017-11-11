@@ -12,6 +12,7 @@ class GithubSourceInterceptor(SourceInterceptor[GithubSourceConfig]):
     """ Clone a source from remote git repository for pre-build """
 
     def on_source(self, context: SourceContext) -> None:
+        context.set_state({'on_source': 'waiting'})
         source_success = True
         if self._validate_path(self.config.pre_build_path, False) and \
            self._validate_path(self.config.ssh_key_path, True):
@@ -22,8 +23,10 @@ class GithubSourceInterceptor(SourceInterceptor[GithubSourceConfig]):
 
         if source_success and self._clone_repo():
             logging.info('Success: on_source GitHub repo ' + self.config.git_repo)
+            context.set_state({'on_source': 'successful'})
         else:
             logging.error('Failure: on_source GitHub repo ' + self.config.git_repo)
+            context.set_state({'on_source': 'failed'})
 
     def _validate_path(self, path: str, is_file: bool) -> bool:
         """ The is_file flag determines if validating a file or directory path """
