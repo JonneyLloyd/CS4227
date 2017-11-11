@@ -28,7 +28,7 @@ class LocalDeployConfig(ConfigModel):
         self._script_list = script_list
         self._packaged = packaged
         self._unpacked_build = self._deploy_root.rstrip('\/') + '/' + self._build_name
-        self._python_path = self._unpacked_build + '/venv/bin/python3'
+        self._venv_bin_path = self._unpacked_build + '/venv/bin'
 
     @attribute_property('package_path')
     def package_path(self) -> str:
@@ -74,6 +74,6 @@ class LocalDeployConfig(ConfigModel):
     def unpacked_build(self) -> str:
         return self._unpacked_build
 
-    @attribute_property('python_path')
-    def python_path(self) -> str:
-        return self._python_path
+    @attribute_property('venv_bin_path')
+    def venv_bin_path(self) -> str:
+        return self._venv_bin_path

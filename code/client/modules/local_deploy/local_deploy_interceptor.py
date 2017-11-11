@@ -17,9 +17,11 @@ class LocalDeployInterceptor(DeployInterceptor[LocalDeployConfig]):
         if self._validate_path(self.config.deploy_root, False):
             if self.config.packaged and self._validate_path(self.config.package_path, True):
                 """ If packaged, copy packaged build to deploy directory and extract """
-                if self._copy_packaged_build() and self._extract_build():
-                    logging.info('Success: pre_deploy for extracted build: ' + self.config.build_name)
-                    pre_deploy_success = True
+                if self._validate_path(self.config.unpacked_build, False):
+                    self._remove_existing_build()
+                    if self._copy_packaged_build() and self._extract_build():
+                        logging.info('Success: pre_deploy for extracted build: ' + self.config.build_name)
+                        pre_deploy_success = True
             elif self._validate_path(self.config.unpacked_build, False):
                 """ If not packaged, build will be already located in deploy directory """
                 logging.info('Success: pre_deploy for unpackaged build: ' + self.config.build_name)
@@ -60,6 +62,16 @@ class LocalDeployInterceptor(DeployInterceptor[LocalDeployConfig]):
 
         return is_valid_path
 
+    def _remove_existing_build(self):
+        """ If extracting a packaged build, we want to make sure the existing unpackaged
+            build in the same directory is not present """
+        local_shell = spur.LocalShell()
+        try:
+            local_shell.run(['sh', '-c', 'rm -r ' + self.config.unpacked_build])
+            logging.info('Removed existing build in build_dir before extracting packaged build')
+        except spur.RunProcessError:
+            logging.error('Failed to remove existing build')
+
     def _copy_packaged_build(self) -> bool:
         copy_success = True
         copy_command = 'cp ' + self.config.package_path + ' ' + self.config.deploy_root
@@ -90,7 +102,7 @@ class LocalDeployInterceptor(DeployInterceptor[LocalDeployConfig]):
         local_shell = spur.LocalShell()
         for script in self.config.script_list:
             try:
-                local_shell.run(['sh', '-c', self.config.python_path + ' ' + script])
+                local_shell.run(['sh', '-c', 'cd ' + self.config.venv_bin_path + '; python3 ' + script])
                 logging.info('Executed script: ' + script)
             except spur.RunProcessError:
                 logging.error('Failed to execute script: ' + script)
