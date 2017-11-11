@@ -11,26 +11,19 @@ class PipelineManager(object):
             self._pipeline_threads = {}
 
         # Attach an inteceptor to a named pipeline
-        def attach_interceptor(self, name: str, interceptor: 'Interceptor'):
+        def attach_interceptor(self, name: str, interceptor: 'Interceptor') -> None:
             dispatcher = self._pipelines[name].source_dispatcher
             dispatcher.register(interceptor)
 
-        @overload
-        def create_interceptor(self, Interceptor: 'Interceptor', config: ConfigModel):
-            interceptor = Interceptor()
-            interceptor.config = config
-            return interceptor
-
-        @overload
-        def create_interceptor(self, name: str, Interceptor: 'Interceptor', config: ConfigModel):
-             interceptor = self.create_interceptor(Interceptor, config)
+        def create_interceptor(self, name: str, Interceptor: 'Interceptor', config: ConfigModel) -> None:
+             interceptor = Interceptor()
+             interceptor.config = config
              self.attach_interceptor(name, config)
 
-        def add_config_to_pipeline(self, name:str, config: ConfigModel, idx: int):
+        def add_config_to_pipeline(self, name:str, config: ConfigModel, idx: int) -> None:
             pipeline = self._pipelines.get(name, None)
             if pipeline:
                 pipeline.configs.insert(idx, config)
-            return pipeline
 
         # Create a pipeline with a name
         def create_pipeline(self, name: str) -> Pipeline:
@@ -44,10 +37,10 @@ class PipelineManager(object):
             pipeline.set_memento(memento)
             return pipeline
 
-        # Anytime we execute the pipeline we should be executing on its own thread.
-        # This allows multiple pipelines to be run at once.
         def execute_pipeline(self, name: str) -> None:
-            self._pipelines[name].execute()
+            if not self._pipeline_threads.get(name, None):
+                self._pipeline_threads[name] = Thread(target=self._pipelines[name].execute)
+            self._pipeline_threads[name].start()
 
     # The PipelineManager is a singleton that manages multiple Pipelines.
     instance = None
