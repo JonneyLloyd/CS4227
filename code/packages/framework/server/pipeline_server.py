@@ -2,7 +2,7 @@ from typing import Type
 
 from flask import Flask
 
-from ..config import ConfigModel
+from ..config import ConfigModelBase
 from ..interceptor import ConfigurableInterceptor
 from ..control import ModuleRegistry
 from .config import ServerConfig
@@ -21,5 +21,5 @@ class PipelineServer:
     def start(self) -> None:
         self._app.run()
 
-    def register_module(self, config: Type[ConfigModel], interceptor: Type[ConfigurableInterceptor]) -> None:
+    def register_module(self, config: Type[ConfigModelBase], interceptor: Type[ConfigurableInterceptor]) -> None:
         ModuleRegistry.register(config, interceptor)
