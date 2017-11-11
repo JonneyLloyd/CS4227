@@ -13,3 +13,8 @@ class ConfigModelBase(ABC):
     @abstractmethod
     def create_memento(self) -> ConfigMemento:
         ...
+
+    @classmethod
+    @abstractmethod
+    def create_schema(cls) -> Dict:
+        ...

@@ -1,4 +1,4 @@
-from typing import Any, Optional, Sequence, Mapping, Dict, Callable
+from typing import Type, Any, Optional, Sequence, Mapping, Dict, Callable
 from inflection import underscore
 
 from ..util import overload
@@ -102,3 +102,92 @@ class ConfigModelFromMap:
             if attr_prop.attribute.required and v is None:
                 raise ValueError(f"'{key}' is None but is a required value, expected non-None value.")
             attr_prop.__set__(target, v)
+
+
+class ConfigModelToSchema:
+
+    def convert(self, item: ConfigModelBase) -> Mapping[str, Any]:
+        """
+        Create a schema for a ConfigModel.
+
+        Facilitates the API.
+        """
+        return self._to_schema(item)
+
+    @overload
+    def _to_schema(self, target: Type) -> Mapping[str, Any]:
+        model: Dict[str, attribute_property] = target.subclasses_attribute_properties[target]
+        model_map = {}
+        required = []
+        definitions = {}
+
+        for attr_prop in model.values():
+            key = attr_prop.attribute.name
+            type_info = attr_prop.attribute.type_info
+
+            type_str, type_ref, defin = self._to_schema_element(key, type_info)
+
+            model_map[key] = {'type': type_str}
+
+            if type_ref:
+                model_map[key]['ref'] = type_ref
+
+            definitions.update(defin)
+
+            if attr_prop.attribute.required:
+                required.append(key)
+
+        schema = {'documentname': target.__documentname__,
+                  'type': 'object',
+                  'properties': model_map}
+
+        if required:
+            schema['required'] = required
+        if definitions:
+            schema['definitions'] = definitions
+
+        return schema
+
+    def _to_schema_element(self, key: str, type_info: Type) -> Any:
+        type_str = None
+        type_ref = None
+        definitions = {}
+
+        if issubclass(type_info, tuple([str, int, float, bool])):
+            type_str = self._to_type_str(type_info)
+
+        elif issubclass(type_info, ConfigModelBase):
+            type_str = 'object'
+            type_ref = f'definitions/{type_info.__documentname__}'
+            definitions[type_info.__documentname__] = self._to_schema(type_info)
+
+        elif issubclass(type_info, Mapping):
+            if issubclass(type_info.__parameters__[1], ConfigModelBase):
+                type_param_value = type_info.__parameters__[1].__documentname__
+            else:
+                type_param_value = self._to_type_str(type_info.__parameters__[1])
+            type_str = 'object'
+            type_param_key = self._to_type_str(type_info.__parameters__[0])
+            type_ref = f'definitions/map[{type_param_key},{type_param_value}]'
+            definitions[f'map[{type_param_key},{type_param_value}]'] = {'type': 'map', 'type_params': [type_param_key, type_param_value]}
+
+        elif issubclass(type_info, Sequence):
+            if issubclass(type_info.__args__[0], ConfigModelBase):
+                type_param = type_info.__args__[0].__documentname__
+            else:
+                type_param = self._to_type_str(type_info.__args__[0])
+            type_str = 'object'
+            type_ref = f'definitions/list[{type_param}]'
+            definitions[f'list[{type_param}]'] = {'type': 'list', 'type_params': [type_param]}
+
+        return type_str, type_ref, definitions
+
+    def _to_type_str(self, typ: Type) -> str:
+        if issubclass(typ, str):
+            return 'string'
+        elif issubclass(typ, int):
+            return 'integer'
+        elif issubclass(typ, float):
+            return 'float'
+        elif issubclass(typ, bool):
+            return 'boolean'

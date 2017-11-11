@@ -10,7 +10,7 @@ T = TypeVar('T', bound=ConfigModel)
 class BuildInterceptor(ConfigurableInterceptor[T], Generic[T]):
 
     @abstractmethod
-    def pre_build(self, context:BuildContext) -> None:
+    def pre_build(self, context: BuildContext) -> None:
         ...
 
     @abstractmethod

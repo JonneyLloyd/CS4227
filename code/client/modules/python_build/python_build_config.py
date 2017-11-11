@@ -20,6 +20,7 @@ class PythonBuildConfig(ConfigModel):
         self._build_name = build_name
         self._build_path = build_root.rstrip('\/') + '/' + build_name
         self._venv_path = self._build_path + '/venv'
+        self._python_path = self._venv_path + '/bin/python3'
 
     @attribute_property('pre_build_path')
     def pre_build_path(self) -> str:
@@ -44,3 +45,15 @@ class PythonBuildConfig(ConfigModel):
     @build_name.setter
     def build_name(self, build_name: str) -> None:
         self._build_name = build_name
+
+    @attribute_property('build_path')
+    def build_path(self) -> str:
+        return self._build_path
+
+    @attribute_property('venv_path')
+    def venv_path(self) -> str:
+        return self._venv_path
+
+    @attribute_property('python_path')
+    def python_path(self) -> str:
+        return self._python_path

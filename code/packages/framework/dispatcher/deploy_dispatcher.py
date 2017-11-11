@@ -11,6 +11,7 @@ class DeployDispatcher():
 
     def dispatch(self, context: DeployContext) -> None:
         for interceptor in self._interceptors:
+            interceptor.pre_deploy(context)
             interceptor.on_deploy(context)
 
     def register(self, interceptor: DeployInterceptor) -> None:

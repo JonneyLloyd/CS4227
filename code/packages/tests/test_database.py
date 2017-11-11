@@ -1,11 +1,10 @@
 from unittest import TestCase
 from os import environ
 
-from client.config import TestConfig
-from client.modules.demo import DemoInterceptor
+from framework.interceptor import StorageInterceptor
 from framework.config import ConfigModel, attribute_property
 from framework.pipeline import Pipeline
-from framework.server import PipelineServer
+from framework.server import PipelineServer, ServerConfig
 from framework.server.app_factory import AppFactory
 from framework.store.store_factory import StoreFactory
 
@@ -48,7 +47,7 @@ class Tests(TestCase):
 
     def test_memento_save_restore(self):
         server = PipelineServer(TestConfig())
-        server.register_module(DummyConfig, DemoInterceptor)
+        server.register_module(DummyConfig, StorageInterceptor)
         store = StoreFactory.create_store()
 
         dummy_config = DummyConfig()
