@@ -76,9 +76,10 @@ class LocalDeployInterceptor(DeployInterceptor[LocalDeployConfig]):
 
     def _extract_build(self) -> bool:
         extract_success = True
-        if unpack_archive(self.config.package_path, self.config.deploy_root):
+        try:
+            unpack_archive(self.config.package_path, self.config.deploy_root)
             logging.info('Extracted archive in: ' + self.config.deploy_root)
-        else:
+        except Exception as e:
             logging.error('Extracting archive failed in: ' + self.config.deploy_root)
             extract_success = False
 
