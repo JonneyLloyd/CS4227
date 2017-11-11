@@ -16,7 +16,3 @@ class DeployInterceptor(ConfigurableInterceptor[T], Generic[T]):
     @abstractmethod
     def on_deploy(self, context: DeployContext) -> None:
         ...
-
-    @abstractmethod
-    def post_deploy(self, context: DeployContext) -> None:
-        ...
