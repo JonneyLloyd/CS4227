@@ -20,14 +20,14 @@ class LocalDeployInterceptor(DeployInterceptor[LocalDeployConfig]):
                 if self._validate_path(self.config.unpacked_build, False):
                     self._remove_existing_build()
                     if self._copy_packaged_build() and self._extract_build():
-                        logging.info('Success: pre_deploy for extracted build: ' + self.config.build_name)
+                        logging.info('local_deploy_interceptor: Success: pre_deploy for extracted build: ' + self.config.build_name)
                         pre_deploy_success = True
             elif self._validate_path(self.config.unpacked_build, False):
                 """ If not packaged, build will be already located in deploy directory """
-                logging.info('Success: pre_deploy for unpackaged build: ' + self.config.build_name)
+                logging.info('local_deploy_interceptor: Success: pre_deploy for unpackaged build: ' + self.config.build_name)
                 pre_deploy_success = True
         if not pre_deploy_success:
-            logging.error('Failure: pre_deploy for build: ' + self.config.build_name)
+            logging.error('local_deploy_interceptor: Failure: pre_deploy for build: ' + self.config.build_name)
             context.set_state({'pre_deploy': 'failed', 'on_deploy': 'waiting'})
         else:
             context.set_state({'pre_deploy': 'successful', 'on_deploy': 'waiting'})
@@ -37,15 +37,15 @@ class LocalDeployInterceptor(DeployInterceptor[LocalDeployConfig]):
         on_deploy_success = True
         for script in self.config.script_list:
             if self._validate_path(script, True):
-                logging.info('Found path to script: ' + script)
+                logging.info('local_deploy_interceptor: Found path to script: ' + script)
             else:
-                logging.error('Failed to find path to script')
+                logging.error('local_deploy_interceptor: Failed to find path to script')
                 on_deploy_success = False
         if on_deploy_success and self._execute_local_scripts():
-            logging.info('Success: on_deploy script execution for build: ' + self.config.build_name)
+            logging.info('local_deploy_interceptor: Success: on_deploy script execution for build: ' + self.config.build_name)
             context.set_state({'pre_deploy': 'successful', 'on_deploy': 'successful'})
         else:
-            logging.error('Failure: on_deploy script execution for build: ' + self.config.build_name)
+            logging.error('local_deploy_interceptor: Failure: on_deploy script execution for build: ' + self.config.build_name)
             context.set_state({'pre_deploy': 'successful', 'on_deploy': 'failed'})
 
     def _validate_path(self, path: str, is_file: bool) -> bool:
@@ -56,9 +56,9 @@ class LocalDeployInterceptor(DeployInterceptor[LocalDeployConfig]):
         elif not is_file and not os.path.isdir(path):
             is_valid_path = False
         if is_valid_path:
-            logging.info('Located path: ' + path)
+            logging.info('local_deploy_interceptor: Located path: ' + path)
         else:
-            logging.error('Could not locate path: ' + path)
+            logging.error('local_deploy_interceptor: Could not locate path: ' + path)
 
         return is_valid_path
 
@@ -68,9 +68,9 @@ class LocalDeployInterceptor(DeployInterceptor[LocalDeployConfig]):
         local_shell = spur.LocalShell()
         try:
             local_shell.run(['sh', '-c', 'rm -r ' + self.config.unpacked_build])
-            logging.info('Removed existing build in build_dir before extracting packaged build')
+            logging.info('local_deploy_interceptor: Removed existing build in build_dir before extracting packaged build')
         except spur.RunProcessError:
-            logging.error('Failed to remove existing build')
+            logging.error('local_deploy_interceptor: Failed to remove existing build')
 
     def _copy_packaged_build(self) -> bool:
         copy_success = True
@@ -79,9 +79,9 @@ class LocalDeployInterceptor(DeployInterceptor[LocalDeployConfig]):
         local_shell = spur.LocalShell()
         try:
             local_shell.run(['sh', '-c', copy_command])
-            logging.info('Copied packaged build for deployment: ' + copy_command)
+            logging.info('local_deploy_interceptor: Copied packaged build for deployment: ' + copy_command)
         except spur.RunProcessError:
-            logging.error('Copying packaged build for deployment failed: ' + copy_command)
+            logging.error('local_deploy_interceptor: Copying packaged build for deployment failed: ' + copy_command)
             copy_success = False
 
         return copy_success
@@ -90,9 +90,9 @@ class LocalDeployInterceptor(DeployInterceptor[LocalDeployConfig]):
         extract_success = True
         try:
             unpack_archive(self.config.package_path, self.config.deploy_root)
-            logging.info('Extracted archive in: ' + self.config.deploy_root)
+            logging.info('local_deploy_interceptor: Extracted archive in: ' + self.config.deploy_root)
         except Exception as e:
-            logging.error('Extracting archive failed in: ' + self.config.deploy_root)
+            logging.error('local_deploy_interceptor: Extracting archive failed in: ' + self.config.deploy_root)
             extract_success = False
 
         return extract_success
@@ -103,9 +103,9 @@ class LocalDeployInterceptor(DeployInterceptor[LocalDeployConfig]):
         for script in self.config.script_list:
             try:
                 local_shell.run(['sh', '-c', 'cd ' + self.config.venv_bin_path + '; python3 ' + script])
-                logging.info('Executed script: ' + script)
+                logging.info('local_deploy_interceptor: Executed script: ' + script)
             except spur.RunProcessError:
-                logging.error('Failed to execute script: ' + script)
+                logging.error('local_deploy_interceptor: Failed to execute script: ' + script)
                 execute_success = False
                 break
 
