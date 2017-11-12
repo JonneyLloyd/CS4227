@@ -1,11 +1,10 @@
-from flask import g, request, abort, jsonify
+from flask import g, request, abort, jsonify, Flask
 from flask_restful import Resource
 
 from ...pipeline import Pipeline
 from ...api.manage_pipelines import ManagePipelines
 from framework.server.extensions import api
 from ..utils import ApiRoute
-
 
 class ManagePipelines(object):
     ...
@@ -28,7 +27,6 @@ class PipelineListAPI(Resource):
 @api.route('/api/v1.0/pipeline/<str:title>')
 class PipelineAPI(Resource):
     def get(self, title):
-        pipeline = ManagePipelines.get_pipeline(title)
         return {'Location': api.url_for(PipelineAPI, title= title)}, 201
 
     def put(self, title):
