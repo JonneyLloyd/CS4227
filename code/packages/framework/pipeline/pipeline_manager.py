@@ -12,13 +12,12 @@ class PipelineManager(object):
 
         # Attach an inteceptor to a named pipeline
         def attach_interceptor(self, name: str, interceptor: 'Interceptor') -> None:
-            dispatcher = self._pipelines[name].source_dispatcher
-            dispatcher.register(interceptor)
+            self._pipelines[name].register_interceptor(interceptor)
 
         def create_interceptor(self, name: str, Interceptor: 'Interceptor', config: ConfigModel) -> None:
              interceptor = Interceptor()
              interceptor.config = config
-             self.attach_interceptor(name, config)
+             self.attach_interceptor(name, interceptor)
 
         def add_config_to_pipeline(self, name:str, config: ConfigModel, idx: int) -> None:
             pipeline = self._pipelines.get(name, None)

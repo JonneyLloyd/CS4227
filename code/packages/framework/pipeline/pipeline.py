@@ -6,8 +6,9 @@ from framework.pipeline.pipeline_memento import PipelineMemento
 from framework.config import ConfigMemento, ConfigModel
 from framework.context import SourceContext, BuildContext, PackageContext, DeployContext
 from framework.dispatcher import SourceDispatcher, BuildDispatcher, PackageDispatcher, DeployDispatcher
+from framework.interceptor import SourceInterceptor, BuildInterceptor, PackageInterceptor, DeployInterceptor
 from framework.control import ModuleRegistry
-
+from framework.util import overload
 
 # Define our own type annotations
 ConfigMementoList = List[ConfigMemento]
@@ -43,6 +44,22 @@ class Pipeline(PipelineBase):
     @property
     def deploy_dispatcher(self) -> DeployDispatcher:
         return self._deploy_dispatcher
+
+    @overload
+    def register_interceptor(self, interceptor: SourceInterceptor) -> None:
+        self._source_dispatcher.register(interceptor)
+
+    @overload
+    def register_interceptor(self, interceptor: BuildInterceptor) -> None:
+        self._build_dispatcher.register(interceptor)
+
+    @overload
+    def register_interceptor(self, interceptor: PackageInterceptor) -> None:
+        self._package_dispatcher.register(interceptor)
+
+    @overload
+    def register_interceptor(self, interceptor: DeployInterceptor) -> None:
+        self._deploy_dispatcher.register(interceptor)
 
     def execute(self) -> None:
         self._source_dispatcher.dispatch(SourceContext(self))
