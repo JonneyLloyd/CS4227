@@ -2,7 +2,29 @@
 
 
 \section{Scenario}
-TODO
+Software deployment tools play an important role in continuous integration and automation.
+It is imperative that these tools are easy to use and flexible in many scenarios.
+A typical pipeline normally responds to changes in code, triggered by a version control
+system. A number of steps must be executed before new code reaches production machines to
+ensure that changes are safe to deploy and that they can be reverted if needed.
+
+A typical pipeline may include a code source, build process, test execution, packaging,
+revision storage and retreival and finally deployment. The system should be flexible to
+allow deployment in various configurations such as single developer machines, remote
+machines and fleets of machines in round robin, waves, one then all or all together.
+
+The goal of the project is to provide an easy to use framework for creating a code
+deployment pipeline. Third party developers should be able to extend the capabilities
+of the system through the provided interception points.
+
+The framework comes with a pre-packaged server so that clients need only register their own or
+third party integrations and start the server. The server provides a REST API allowing
+clients to see and create pipelines as well as add and configure modules at various
+interception points provided by the framework. The client may also see the status of the
+pipeline.
+
+The framework allows the client to register an endpoint with a version control system,
+such as GitHub. When changes are made GitHub can trigger the execution of the pipeline.
 
 \section{Use Cases and Use Case Descriptions}
   \subsection{Use Case Diagram}
@@ -11,20 +33,13 @@ TODO
         \caption{Use Case Diagram}
         \label{fig:use_case_diagram}
       \end{figure}
-      
+
    \subsection{Use Case Description}
    \begin{figure}[H]
        \includegraphics[width = 1.2\linewidth]{diagrams/DetailedUseCase}
        \caption{Use Case Description}
        \label{fig:use_case_description}
-     \end{figure}    
-
-
-\section{Architectural Use Cases}
-TODO
-
-\subsubsection{Tactics?}
-TODO
+     \end{figure}
 
 
 \section{Non-Functional Requirements}
@@ -51,3 +66,7 @@ Performance is a measure of the amount of work accomplished by a computer system
 Configuration management is the task of tracking and controlling changes in a system. If a failure occurs in a system due to an incorrect configuration, configuration files can determine what was changed and who changed it. Distributing text files containing configuration information is a common way to manage configurations in a software system. Master copies of important configuration files are kept in a central location and distributed to machines that require them. Centralization enables version control, reducing the time taken to make changes across large groups of hosts. Using a simple version control system such as Git will ensure any config changes are logged and can be audited if the need arises.
 
 Ansible and Chef are examples of configuration management tools. Both tools achieve similiar results but work in different ways. Chef operates on a client-server model, where a Chef server stores configuration files called Cookbooks. The client nodes run the Chef client software, which performs the automation and config management upon receiving instructions from the Chef server. On the other hand, Ansible is agentless, requiring nothing on target hosts systems other than SSH and Python. This makes Ansible easy to work with and has excellent inbuilt security with SSH.
+
+
+\section{Tactics to Support Architectural Use Cases}
+TODO
