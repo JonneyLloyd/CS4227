@@ -3,6 +3,7 @@ from flask import Flask
 
 from .config import ServerConfig
 from .extensions import api, dynamo
+from flask_restful import Api
 
 
 class AppFactory(object):
@@ -26,6 +27,6 @@ class AppFactory(object):
 
     @staticmethod
     def _load_extensions_after(app: Flask) -> None:
-        api.init_app(app)
+        api = Api(app)
         dynamo.init_app(app)
         dynamo.create_all()

@@ -8,60 +8,10 @@ from framework.pipeline import Pipeline, PipelineManager
 from framework.server import PipelineServer, ServerConfig
 from framework.server.app_factory import AppFactory
 from framework.store.store_factory import StoreFactory
-
-
-class DummyConfig(ConfigModel):
-
-    __documentname__ = 'dummy_config'
-
-    def __init__(self):
-        self._dummy = None
-
-    @property
-    def dummy(self) -> str:
-        return self._dummy
-
-    @attribute_property('_dummy')
-    def dummy(self) -> str:
-        return self._dummy
-
-    @dummy.setter
-    def dummy(self, dummy: str) -> None:
-        self._dummy = dummy
-
+from .demo_util import DummyConfig, TestConfig, DemoInterceptor
 
 class DummyPipeline(Pipeline):
     ...
-
-
-class TestConfig(ServerConfig):
-    environ['AWS_ACCESS_KEY_ID'] = 'dummy'
-    environ['AWS_SECRET_ACCESS_KEY'] = 'dummy'
-    AWS_ACCESS_KEY_ID = environ.get('AWS_ACCESS_KEY_ID')
-    AWS_SECRET_ACCESS_KEY = environ.get('AWS_SECRET_ACCESS_KEY')
-    DYNAMO_ENABLE_LOCAL = True
-    DYNAMO_LOCAL_HOST = 'localhost'
-    DYNAMO_LOCAL_PORT = 8000
-    DYNAMO_TABLES = [
-        dict(
-            TableName='mementos',
-            KeySchema=[dict(AttributeName='type', KeyType='HASH')],
-            AttributeDefinitions=[dict(AttributeName='type', AttributeType='S')],
-            ProvisionedThroughput=dict(ReadCapacityUnits=5, WriteCapacityUnits=5),
-        )
-    ]
-
-
-class DemoInterceptor(SourceInterceptor[DummyConfig]):
-    """
-    Dummy class for demonstratating arbitrary features of the framework.
-    """
-
-    def pre_source(self, context: SourceContext) -> None:
-        print(f"The DemoInterceptor received an event! Config a='{self.config.a}'")
-
-    def on_source(self, context: SourceContext) -> None:
-        print(f"The DemoInterceptor received an event! Config a='{self.config.a}'")
 
 
 class Tests(TestCase):
@@ -76,7 +26,7 @@ class Tests(TestCase):
         assert app.config['DYNAMO_LOCAL_HOST'] == 'localhost'
         assert app.config['DYNAMO_LOCAL_PORT'] == 8000
         assert len(app.config['DYNAMO_TABLES']) == 1
-
+"""
     def test_memento_save_restore(self):
         server = PipelineServer(TestConfig())
         server.register_module(DummyConfig, DemoInterceptor)
@@ -103,3 +53,4 @@ class Tests(TestCase):
         assert dummy_pipeline.config[0].config.__dict__ == restored_pipeline.config[0].config.__dict__
 
         store.delete_pipeline('dummy_pipeline')
+"""
