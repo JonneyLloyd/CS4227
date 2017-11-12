@@ -40,7 +40,57 @@ class AppFactory(object):
 
 
 \subsection{Generic Factory Method}
-TODO
+The generic factory method allows the usage of generics to parameterise a class so that it can later create instances
+of that generic type, where the concrete type cannot be anticipated. We implemented this in our interceptors so
+that they could be supplied with a memento and create an instance the appropriate configuration class to restore the
+memento into. This allows our code to be easily extended by third parties without changes to the framework.
+
+\begin{lstlisting}[language=Python]
+	T = TypeVar('T', bound=ConfigModel)
+	class ConfigurableInterceptor(GenericABC, Generic[T]):
+	    """A generic base class responsible for creating the appropriate ConfigModel for interceptors.
+	    """
+	    @property
+	    def config(self) -> ConfigModel:
+	        return self._config
+
+	    @config.setter
+	    def config(self, config: ConfigMemento) -> None:
+	        self._config = self._create_config(config)
+
+	    def _create_config(self, config: ConfigMemento) -> T:
+	        clazz: Type = self._get_generic_type(T)
+	        c: T = clazz()
+	        c.set_memento(config)
+	        return c
+
+
+U = TypeVar('U', bound=ConfigModel)
+class SourceInterceptor(ConfigurableInterceptor[U], Generic[U]):
+		"""Interface for clients - Associated with a particular dispatcher/interception point.
+		"""
+
+    @abstractmethod
+    def on_source(self, context: SourceContext) -> None:
+        ...
+
+
+class ClientInterceptor(SourceInterceptor[ClientConfig]):
+
+    def on_source(self, context: SourceContext) -> None:
+				# Since the client parameterised it's parent generic class,
+				# when a memento is restored we can access the our ClientConfig
+				# without the framework knowing anything about it.
+        print(f"The ClientInterceptor received an event! Here is ClientConfig '{self.config}'")
+
+
+interceptor: ConfigurableInterceptor = ClientInterceptor()
+# Reveals nothing about type info
+memento: ConfigMemento = retreive_memento()
+# Setter in base class will handle creation of the correct config
+interceptor.config = memento
+
+\end{lstlisting}
 
 \section{Structural}
 Structural design patterns are design patterns that ease the design by identifying a simple way to
@@ -48,7 +98,73 @@ realize relationships between entities~\citep{OODesign}.
 
 
 \subsection{Composite}
-The composite pattern is used to group objects into tree structures to represent whole-part hierarchies. This pattern lets clients treat individual objects and compositions of objects uniformly. \cite{sourcemaking}
+The composite pattern is used to group objects into tree structures to represent whole-part hierarchies.
+This pattern lets clients treat individual objects and compositions of objects uniformly ~\citep{sourcemaking}.
+We used composition for modeling configuration. A core part of making our framework extensible and easy to use
+was to provide an easy mechanism for providing configuration to modules. The difficulty is that the framework
+cannot know the concrete implementation and configuration is typically very unstructured.
+
+By implementing the composite design pattern in a base class in tandem with a combination of decorators and
+reflection, we implemented an easy to use API for modeling client module configuaration with support for various
+types and nested structures. This effectively allowed us to provide \textbf{ORM-like functionality} since this
+structure works with our database and REST API without modifications in the framework.
+
+\begin{lstlisting}[language=Python]
+	class HostConfig(ConfigModel):
+
+	    def __init__(self, ip: str=None, key: str=None) -> None:
+	        self._ip = ip
+	        self._key = key
+
+	    @attribute_property('ssh_key')
+	    def key(self) -> str:
+	        return self._key
+
+	    @key.setter
+	    def key(self, key: str) -> None:
+	        self._key = key
+
+	    @attribute_property('ip_address')
+	    def ip(self) -> str:
+	        return self._ip
+
+	    @ip.setter
+	    def ip(self, ip: str) -> None:
+	        self._ip = ip
+
+
+	class FleetConfig(ConfigModel):
+
+	    __documentname__ = 'fleet_of_hosts'
+
+	    def __init__(self, region: str=None, hosts: List=None) -> None:
+	        self._region = region
+	        self._hosts = hosts if hosts else []
+
+	    @attribute_property('hosts')
+	    def hosts(self) -> List[HostConfig]:
+	        return self._hosts
+
+	    @hosts.setter
+	    def hosts(self, hosts: List[DemoConfigChild]) -> None:
+	        self._hosts = hosts
+
+	    @attribute_property('region')
+	    def region(self) -> str:
+	        return self._region
+
+	    @a.setter
+	    def region(self, region: str) -> None:
+	        self._region = region
+\end{lstlisting}
+
+The FleetConfig is composed of many HostConfigs. Any class that subclasses ConfigModel can be composed of
+primative types and collections as well as other ConfigModel subclasses. The ConfigModel base class handles
+all the required functionality for creating and restoring mementos for these classes so that the client does
+not need to implement such methods. The contents of the memento can be easily stored in a no-SQL database.
+We can also create a schema which can be provided to clients via the REST API. This also means, should we
+decide to implement a GUI, that the GUI would not need to know anything about third party modules in order
+to display their configuration and allow the user to modify it.
 
 \subsection{Pluggable Adapter}
 The pluggable adapter allows a system to be plugged in. It lets us incorporate a class into
@@ -65,7 +181,7 @@ class DocumentStore(ABC):
 	@abstractmethod
 	def _save(self, name: str, _list: List[dict]) -> None:
 		...
-	
+
 	def save_pipeline(self, name: str, pipeline_memento: PipelineMemento) -> None:
 		config_memento_list = self._extract_config_memento_list(pipeline_memento)
 		self._save(name, config_memento_list)
@@ -74,7 +190,7 @@ class DynamoStore(DocumentStore):
 
 	def __init__(self):
 		self.store = dynamo
-	
+
 	def _save(self, name: str, _list: List[dict]) -> None:
 		table = self.store.tables['mementos']
 		table.put_item(Item={
@@ -84,13 +200,27 @@ class DynamoStore(DocumentStore):
 \end{lstlisting}
 
 \section{Behavioural}
-In software engineering, behavioural design patterns are design patterns that identify common communication patterns between objects and realize these patterns. By doing so, these patterns increase flexibility in carrying out this communication. \cite{sourcemaking}
+In software engineering, behavioural design patterns are design patterns that identify common communication patterns
+between objects and realize these patterns. By doing so, these patterns increase flexibility in carrying out this
+communication \citep{sourcemaking}.
 
 \subsection{Command}
-TODO
+The command design pattern allows us to encapsulate an operation which can be passed as an object and executed at
+a point where the code is oblivious to the operation being performed, other than knowing how to execute it.
+In the context of our project we wanted the client to be able to provide a module (a config, interceptor pair)
+which the framework could be responsible for creating. Since Python is a fully object-oriented language, where
+primatives, functions, classes and even methods are actually objects, we implemented the command design pattern
+in a similar way to delegates in C\#. Classes can be passes as arguments and later invoked with no arguments
+(similar to an \emph{execute()} method) effectively calling a no-arg constructor. Implementing an actual class
+for the command design pattern in Python is practically redundant and effectively just bloat given the syntax
+available in the language. You may wonder what if the class requires parameters? This can easily be solved in
+Python using the standard library and a function called \emph{partial} to pre-parameterise the class being passed
+without actually creating it. This applies to functions/methods likewise. These conditions satisfy the intent of
+the command.
 
 \subsection{Memento}
-The memento pattern allows us to capture and externalise an objects state so that the object can be returned to this state later on.
+The memento pattern allows us to capture and externalise an objects state so that the object can be returned to
+this state later on.
 Steps:
 \begin{itemize}
 	\item Ask originator to create and return a memento.
@@ -108,18 +238,18 @@ class Pipeline(PipelineBase):
 
 	def set_memento(self, memento: PipelineMemento) -> None:
 		self.config = memento.config
-	
+
 	def create_memento(self) -> PipelineMemento:
 		memento = PipelineMemento()
 		memento.config = self.config
 		return memento
-		
+
 class PipelineMemento:
 
 	@property
 	def config(self) -> List[ConfigMemento]:
 		return self._config
-	
+
 	@config.setter
 	def config(self, value: List[ConfigMemento]) -> None:
 		self._config = value
@@ -129,14 +259,23 @@ class ConfigMemento():
 	@property
 	def config(self) -> Optional[Dict[str, Any]]:
 		return self._config or None
-	
+
 	@config.setter
 	def config(self, value: Dict[str, Any]) -> None:
 		self._config = value
 \end{lstlisting}
 
-\subsection{State}
-The state pattern allows an object to change it's behaviour when it changes it's internal state. The main object is called the context and this is the object that keeps the state. When the state needs to be changed the state currently being ran can update that state of the context.
+Normally both a narrow and wide interface should be provided, but for two reasons this was inappropriate for us.
+Firstly, Python is a duck-typed language. There is no way to enforce usage of interfaces. Although we have used
+type annotations, which would make it look like static typing is present, methods from subclasses can still be
+accessed i.e. we cannot cast to superclass types. Interfaces are also not considered idiomatic in the language.
+Since interfaces cannot be used to enforce types, they are redundant and have no benefit.
+Abstract classes are usually preferred if they add any functionality.
+Secondly, since we implemented a client server architecture, we were required to store mementos in a database which
+would require what is typically considered a wide interface. Again, since type information cannot be lost by
+using interfaces and therefore casting is not possible (because it would be redundant) it is appropriate.
+We considered serialization of the mementos but that would be worse given that serialised objects should never
+appear in a database as they are language and implementation specific.
 
 \subsection{Strategy}
 Define a family of algorithms, encapsulate each one, and make them interchangeable. Strategy lets the
@@ -200,7 +339,7 @@ class Visitable(ABC):
 	@abstractmethod
 	def accept(self, visitor: JsonSanitizer) -> None:
 		...
-	
+
 class JsonRequest(Visitable):
 	
 	def accept(self, visitor: JsonSanitizer) -> None:
