@@ -3,7 +3,7 @@ from typing import List
 
 from framework.config import ConfigMemento
 from framework.control import ModuleRegistry
-from framework.pipeline.pipline_memento import PipelineMemento
+from framework.pipeline.pipeline_memento import PipelineMemento
 
 
 class DocumentStore(ABC):

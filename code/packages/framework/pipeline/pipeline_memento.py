@@ -2,7 +2,7 @@ from typing import List
 from framework.config import ConfigMemento
 
 
-class PipelineMemento:
+class PipelineMemento(object):
 
     @property
     def config(self) -> List[ConfigMemento]:
