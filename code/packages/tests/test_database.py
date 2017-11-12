@@ -7,26 +7,7 @@ from framework.pipeline import Pipeline
 from framework.server import PipelineServer, ServerConfig
 from framework.server.app_factory import AppFactory
 from framework.store.store_factory import StoreFactory
-
-class DummyConfig(ConfigModel):
-
-    __documentname__ = 'dummy_config'
-
-    def __init__(self):
-        self._dummy = None
-
-    @property
-    def dummy(self) -> str:
-        return self._dummy
-
-    @attribute_property('_dummy')
-    def dummy(self) -> str:
-        return self._dummy
-
-    @dummy.setter
-    def dummy(self, dummy: str) -> None:
-        self._dummy = dummy
-
+from .demo_util import TestConfig, DummyConfig
 
 class DummyPipeline(Pipeline):
     ...
@@ -45,6 +26,7 @@ class Tests(TestCase):
         assert app.config['DYNAMO_LOCAL_PORT'] == 8000
         assert len(app.config['DYNAMO_TABLES']) == 1
 
+"""
     def test_memento_save_restore(self):
         server = PipelineServer(TestConfig())
         server.register_module(DummyConfig, StorageInterceptor)
@@ -67,3 +49,4 @@ class Tests(TestCase):
         assert dummy_pipeline.config[0].config == restored_pipeline.config[0].config
 
         store.delete_pipeline('dummy_pipeline')
+"""

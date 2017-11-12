@@ -7,13 +7,13 @@ TODO code snippet of Generic Factory Method, Composite, Command, State, Intercep
 Creational design patterns are design patterns that deal with object creation
 mechanisms, trying to create objects in a manner suitable to the situation. The basic form of object
 creation could result in design problems or added complexity to the design. Creational design patterns
-solve this problem by controlling this object creation~\citep{OODesign}.
+solve this problem by controlling this object creation~\citep{oodesign}.
 
 \subsection{Abstract Factory}
 The Abstract Factory design pattern adds another layer of abstraction to the Factory design pattern.
 The Abstract Factory provides us with a framework that allows us to create families of related or
 dependent objects without specifying their concrete classes. So at runtime, the abstract factory is
-coupled with any desired factory which can create objects of desired type~\citep{OODesign}.
+coupled with any desired factory which can create objects of desired type~\citep{oodesign}.
 
 We used the Abstract Factory to create our server and load extensions.
 
@@ -94,7 +94,7 @@ interceptor.config = memento
 
 \section{Structural}
 Structural design patterns are design patterns that ease the design by identifying a simple way to
-realize relationships between entities~\citep{OODesign}.
+realize relationships between entities~\citep{oodesign}.
 
 
 \subsection{Composite}
@@ -279,7 +279,7 @@ appear in a database as they are language and implementation specific.
 
 \subsection{Strategy}
 Define a family of algorithms, encapsulate each one, and make them interchangeable. Strategy lets the
-algorithm vary independently from clients that use it~\citep{OODesign}
+algorithm vary independently from clients that use it~\citep{oodesign}
 
 We used the Strategy design pattern to add encryption to text.
 
@@ -357,4 +357,52 @@ whereas other architecture patterns naturally lend themselves toward application
 The Interceptor is used for developing frameworks that can be extended transparently, allowing out-of-band services to register with the framework using predefined interfaces. The framework creates  a dispatched and context object. The client creates a concrete interceptor from the interface. The client attaches the interceptor to the dispatcher. When an event occurs in the framework it will pass the context object to the dispatcher which will iterate all registered interceptor, using the observer design pattern method. The context object is passed to the interceptor where the client can then access the internals of the framework.
 
 \subsection{REST}
-TODO
+REST (Representational state transfer) or RESTful web services are a way of providing interoperability between computer systems through the Internet. For our project we used Flask-RESTful which is an extension for Flask that adds support for quickly building REST APIs. It has been combined with the abstract factory pattern to provide better flexibility, with different server configurations.
+
+\begin{lstlisting}[language=Python]
+class AppFactory(object):
+    @staticmethod
+    def create_app(config: ServerConfig) -> Flask:
+        app = Flask(__name__)
+        app.config.from_object(config)
+        with app.app_context():
+            AppFactory._load_extensions_before(app)
+            AppFactory._load_controllers(app)
+            AppFactory._load_extensions_after(app)
+        return app
+
+    @staticmethod
+    def _load_extensions_before(app: Flask) -> None:
+        pass
+
+    @staticmethod
+    def _load_controllers(app: Flask) -> None:
+        pass
+
+    @staticmethod
+    def _load_extensions_after(app: Flask) -> None:
+        api.init_app(app)
+        dynamo.init_app(app)
+        dynamo.create_all()
+        
+        
+class ServerConfig:
+    APP_NAME = 'Pipeline'
+    APP_PORT = 80
+    SECRET_KEY = os.urandom(12)
+    DEBUG = False
+    LOG_LEVEL = 'info'
+
+    DATABASE_URI = None
+    DATABASE_KEY = None
+\end{lstlisting}
+
+Then in the Api package we define addresses for accessing resources that are returned to the client.
+
+\begin{lstlisting}[language=Python]
+@api.route('/api/v1.0/pipeline/<str:title>')
+class PipelineAPI(Resource):
+    def get(self, title):
+        pipeline = ManagePipeLines.get_pipeline(title)
+        return {'Location': api.url_for(PipelineAPI, title= title)}, 201
+\end{lstlisting}
