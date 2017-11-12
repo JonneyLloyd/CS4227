@@ -8,28 +8,7 @@ from framework.server.config import ServerConfig
 from framework.interceptor import SourceInterceptor
 from framework.context import SourceContext
 from framework.pipeline import Pipeline, PipelineManager
-
-
-class DemoConfig(ConfigModel):
-    """
-    Dummy class for demonstratating arbitrary features of the framework.
-    """
-
-    __documentname__ = 'demo'
-
-    def __init__(self, a: str=None) -> None:
-        self._a = a
-
-class DemoInterceptor(SourceInterceptor[DemoConfig]):
-    """
-    Dummy class for demonstratating arbitrary features of the framework.
-    """
-
-    def pre_source(self, context: SourceContext) -> None:
-        print(f"The DemoInterceptor received an event! Config a='{self.config.a}'")
-
-    def on_source(self, context: SourceContext) -> None:
-        print(f"The DemoInterceptor received an event! Config a='{self.config.a}'")
+from .demo_util import DemoConfig, DemoInterceptor
 
 
 class TestPipelineAPI(TestCase):

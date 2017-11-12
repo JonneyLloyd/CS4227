@@ -1,50 +1,7 @@
 import unittest
 from typing import List, Mapping, Deque, Dict
 from framework.config import ConfigModel, ConfigMemento, attribute_property
-
-
-class ChildConfig(ConfigModel):
-    """
-    Dummy class for demonstratating arbitrary features of the framework.
-    """
-
-    def __init__(self) -> None:
-        self._numbers = []
-
-    @attribute_property('numbers', required=False)
-    def numbers(self) -> List[int]:
-        return self._numbers
-
-    @numbers.setter
-    def l(self, numbers: List[int]) -> None:
-        self._numbers = numbers
-
-
-class ParentConfig(ConfigModel):
-
-    __documentname__ = 'parent'
-
-    def __init__(self) -> None:
-        self._a = None
-        self._child = ChildConfig()
-
-    @attribute_property('child')
-    def child(self) -> ChildConfig:
-        return self._child
-
-    @child.setter
-    def child(self, child: ChildConfig) -> None:
-        self._child = child
-
-    @attribute_property('amazing')
-    def a(self) -> str:
-        return self._a
-
-    @a.setter
-    def a(self, a: str) -> None:
-        self._a = a
-
-
+from .demo_util import ChildConfig, ParentConfig
 
 class TestConfigModel(unittest.TestCase):
 

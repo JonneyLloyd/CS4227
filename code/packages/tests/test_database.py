@@ -7,44 +7,7 @@ from framework.pipeline import Pipeline
 from framework.server import PipelineServer, ServerConfig
 from framework.server.app_factory import AppFactory
 from framework.store.store_factory import StoreFactory
-
-class TestConfig(ServerConfig):
-    environ['AWS_ACCESS_KEY_ID'] = 'dummy'
-    environ['AWS_SECRET_ACCESS_KEY'] = 'dummy'
-    AWS_ACCESS_KEY_ID = environ.get('AWS_ACCESS_KEY_ID')
-    AWS_SECRET_ACCESS_KEY = environ.get('AWS_SECRET_ACCESS_KEY')
-    DYNAMO_ENABLE_LOCAL = True
-    DYNAMO_LOCAL_HOST = 'localhost'
-    DYNAMO_LOCAL_PORT = 8000
-    DYNAMO_TABLES = [
-        dict(
-            TableName='mementos',
-            KeySchema=[dict(AttributeName='type', KeyType='HASH')],
-            AttributeDefinitions=[dict(AttributeName='type', AttributeType='S')],
-            ProvisionedThroughput=dict(ReadCapacityUnits=5, WriteCapacityUnits=5),
-        )
-    ]
-
-
-class DummyConfig(ConfigModel):
-
-    __documentname__ = 'dummy_config'
-
-    def __init__(self):
-        self._dummy = None
-
-    @property
-    def dummy(self) -> str:
-        return self._dummy
-
-    @attribute_property('_dummy')
-    def dummy(self) -> str:
-        return self._dummy
-
-    @dummy.setter
-    def dummy(self, dummy: str) -> None:
-        self._dummy = dummy
-
+from .demo_util import TestConfig, DummyConfig
 
 class DummyPipeline(Pipeline):
     ...
