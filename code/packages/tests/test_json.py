@@ -11,10 +11,3 @@ class Tests(unittest.TestCase):
         json_request = JsonRequest(unsanitized)
         json_request.accept(JsonSanitizer())
         self.assertTrue(sanitized == json_request.text)
-
-    def key_strip_test(self):
-        stripped = '[{"a": 1, "b": 2, "c": 3, "d": [{"da": 4}], "e": {"ea": 5}}]'
-        unstripped = '[{" a ":1,"   b   ":2,"   c   ":3,"  d ":[{"   da  ":4}],"  e  ": {"  ea  ":5}}]'
-        json_request = JsonRequest(unstripped)
-        json_request.accept(JsonKeyStripper())
-        self.assertTrue(stripped == json_request.text)
