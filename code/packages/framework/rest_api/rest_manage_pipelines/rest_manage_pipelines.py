@@ -1,11 +1,9 @@
-from ...pipeline import Pipeline
-from ...api.manage_pipelines import ManagePipelines
 from flask import g, request, abort, jsonify
 from flask_restful import Resource
 
+from ...pipeline import Pipeline
+from ...api.manage_pipelines import ManagePipelines
 from framework.server.extensions import api
-
-
 
 class ManagePipelines(object):
     ...

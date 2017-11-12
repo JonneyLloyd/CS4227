@@ -1,19 +1,17 @@
 from ..config import ConfigMapper
 from ..api.manage_configs import ManageConfigs
+
 from flask import g, request, abort, jsonify, get_flashed_messages
 from flask_restful import Resource
 from extension import api
+
 class RestManageConfig:
     ...
 
 @api.route('/api/v1.0/pipeline/<str:title>/config_model/')
 class ConfigListAPI(Resource):
-    def get(self):
-        '''
-        Retrieve a config from pipeline
-        When getting the list, need to get position(index)
-        '''
-        pass
+    def get(self, title):
+        return {ManageConfigs.get_all_configs(title)}, 201
 
     def post(self):
         #Create new config on pipeline
