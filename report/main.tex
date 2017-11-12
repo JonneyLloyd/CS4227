@@ -1,6 +1,6 @@
 \documentclass[a4paper,oneside]{report}
 \usepackage{titlesec}
-\usepackage[numbers,sort&compress]{natbib}
+\usepackage[sort]{natbib}
 \usepackage[parfill]{parskip}
 \usepackage{fancyhdr}
 \usepackage{hyperref}
@@ -8,6 +8,8 @@
 \usepackage{float}
 \usepackage{graphicx,wrapfig}
 \usepackage{multirow}
+\usepackage{listings}
+\usepackage{color}
 
 \setcounter{tocdepth}{4}
 \setcounter{secnumdepth}{4}
@@ -24,6 +26,21 @@
 \renewcommand{\bibname}{References}
 \newenvironment{tableItem}{\begin{itemize}\setlength{\itemindent}{-6mm}}{\end{itemize}}
 
+\definecolor{mygreen}{rgb}{0,0.6,0}
+\definecolor{mymauve}{rgb}{0.58,0,0.82}
+
+\lstset{ %
+	backgroundcolor=\color{white},   % choose the background color
+	basicstyle=\footnotesize,        % size of fonts used for the code
+	breaklines=true,       
+	tabsize=2,         				 % automatic line breaking only at whitespace
+	captionpos=b,                    % sets the caption-position to bottom
+	commentstyle=\color{mygreen},    % comment style
+	escapeinside={\%*}{*)},          % if you want to add LaTeX within your code
+	keywordstyle=\color{blue},       % keyword style
+	stringstyle=\color{mymauve},     % string literal style
+}
+
 \begin{document}
 	\include{title}
 	\tableofcontents
@@ -34,6 +51,7 @@
 	\include{system_architecture_5}
 	\include{added_value_8}
 	\include{critique_11}
+	\include{appendix}
 
 
 
