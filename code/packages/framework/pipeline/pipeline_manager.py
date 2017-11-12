@@ -19,10 +19,10 @@ class PipelineManager(object):
              interceptor.config = config
              self.attach_interceptor(name, interceptor)
 
-        def add_config_to_pipeline(self, name:str, config: ConfigModel, idx: int) -> None:
-            pipeline = self._pipelines.get(name, None)
-            if pipeline:
-                pipeline.configs.insert(idx, config)
+        # def add_config_to_pipeline(self, name:str, config: ConfigModel, idx: int) -> None:
+        #     pipeline = self._pipelines.get(name, None)
+        #     if pipeline:
+        #         pipeline.configs.insert(idx, config)
 
         # Create a pipeline with a name
         def create_pipeline(self, name: str) -> Pipeline:

@@ -27,7 +27,7 @@ class Pipeline(PipelineBase):
         config.set_memento(memento)
         interceptor.config = config
         self.source_dispatcher.register(interceptor)
-        return config
+        return interceptor
 
     @property
     def source_dispatcher(self) -> SourceDispatcher:
@@ -73,6 +73,6 @@ class Pipeline(PipelineBase):
 
     def create_memento(self) -> PipelineMemento:
         memento = PipelineMemento()
-        configs = [config.create_memento() for config in self.config]
+        configs = [interceptor.config.create_memento() for interceptor in self.config]
         memento.config = configs
         return memento

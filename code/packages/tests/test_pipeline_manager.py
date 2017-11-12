@@ -104,9 +104,11 @@ class PipelineManagerTests(TestCase):
         store = StoreFactory.create_store()
 
         demo_config = DemoConfig('Dobby')
+        demo_intercetor = DemoInterceptor()
+        demo_intercetor.config = demo_config
 
         demo_pipeline = self.pipeline_manager.create_pipeline('Dobby')
-        demo_pipeline.config = [demo_config]
+        demo_pipeline.config = [demo_intercetor]
 
         memento = demo_pipeline.create_memento()
 
