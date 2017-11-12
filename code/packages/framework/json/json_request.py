@@ -6,7 +6,7 @@ class JsonRequest(Visitable):
     def __init__(self, text: str) -> None:
         self._text = text
 
-    def accept(self, visitor: 'JsonVisitor') -> None:
+    def accept(self, visitor: 'JsonKeySanitizer') -> None:
         self._text = visitor.visit(self)
 
     @property

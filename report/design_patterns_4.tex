@@ -177,7 +177,9 @@ The visitors purpose is to abstract functionality that can be applied to an aggr
 	\item The element accepts and passes itself to the visitors visit method.
 \end{itemize}
 
-We implemented the Visitor design pattern to add functionality to our json requests.
+We implemented the Visitor design pattern to add functionality to our requests. We have only implemented json
+requests for the time being but would intend to implement XML requests also. The visitor has the functionality
+to handle this.
 
 \begin{lstlisting}[language=Python]
 class JsonVisitor(ABC):
@@ -187,22 +189,23 @@ class JsonVisitor(ABC):
 	def visit(self, visitable: JsonRequest) -> str:
 		...
 
-class Visitable(ABC):
-
-	@abstractmethod
-	def accept(self, visitor: JsonVisitor) -> None:
-		...
-	
-class JsonRequest(Visitable):
-	
-	def accept(self, visitor: JsonVisitor) -> None:
-		self._text = visitor.visit(self)
-
 class JsonSanitizer(JsonVisitor):
 
 	@overload
 	def visit(self, json_request: JsonRequest) -> str:
 		return str(json.loads(json_request.text))
+
+class Visitable(ABC):
+
+	@abstractmethod
+	def accept(self, visitor: JsonSanitizer) -> None:
+		...
+	
+class JsonRequest(Visitable):
+	
+	def accept(self, visitor: JsonSanitizer) -> None:
+		self._text = visitor.visit(self)
+
 \end{lstlisting}
 
 \section{Architectural}
