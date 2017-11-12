@@ -4,6 +4,7 @@ from os import environ
 
 from framework.config import ConfigModel, attribute_property
 from framework.api.manage_pipelines import ManagePipelines
+#from framework.rest_api.rest_manage_pipelines import PipelineListAPI
 from framework.server.config import ServerConfig
 from framework.interceptor import SourceInterceptor
 from framework.context import SourceContext

@@ -2,10 +2,6 @@ from typing import Type, Any, Mapping, Dict, List
 from ...pipeline import Pipeline, PipelineManager
 from ...config import ConfigModel
 
-
-
-
-
 class ManagePipelines(object):
     def __init__(self):
         self.pipeline_manager = PipelineManager()
