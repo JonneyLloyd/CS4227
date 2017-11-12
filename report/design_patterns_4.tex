@@ -1,44 +1,87 @@
 \chapter{Design Patterns}
 TODO context and consequences and support for scenario.
-TODO generic factory, plugable adapter, command
-TODO move bridge and state to appendices?
+TODO generic factory, command
+TODO code snippet of Generic Factory Method, Composite, Command, State, Interceptor
 
 \section{Creational}
 Creational design patterns are design patterns that deal with object creation
 mechanisms, trying to create objects in a manner suitable to the situation. The basic form of object
 creation could result in design problems or added complexity to the design. Creational design patterns
-solve this problem by controlling this object creation.
+solve this problem by controlling this object creation~\citep{OODesign}.
 
 \subsection{Abstract Factory}
 The Abstract Factory design pattern adds another layer of abstraction to the Factory design pattern.
 The Abstract Factory provides us with a framework that allows us to create families of related or
 dependent objects without specifying their concrete classes. So at runtime, the abstract factory is
-coupled with any desired factory which can create objects of desired type.
+coupled with any desired factory which can create objects of desired type~\citep{OODesign}.
+
+We used the Abstract Factory to create our server and load extensions.
+
+
+\begin{lstlisting}[language=Python]
+class AppFactory(object):
+
+	@staticmethod
+	def create_app(config: ServerConfig) -> Flask:
+	app = Flask(__name__)
+	app.config.from_object(config)
+	with app.app_context():
+		AppFactory._load_extensions_before(app)
+		AppFactory._load_controllers(app)
+		AppFactory._load_extensions_after(app)
+	return app
+
+	@staticmethod
+	def _load_extensions_after(app: Flask) -> None:
+		api.init_app(app)
+		dynamo.init_app(app)
+		dynamo.create_all()
+\end{lstlisting}
+
 
 \subsection{Generic Factory Method}
 TODO
 
 \section{Structural}
 Structural design patterns are design patterns that ease the design by identifying a simple way to
-realize relationships between entities.
+realize relationships between entities~\citep{OODesign}.
 
-\subsection{Bridge}
-The Bridge design pattern allows us to separate the abstraction from the implementation, thus
-allowing us to hide the implementation from the client and only providing the abstraction.
-Use when:
-\begin{itemize}
-	\item we want run-time binding of the implementation
-	\item we have a collection of related classes resulting from a coupled interface and numerous
-	      implementations
-	\item we want to share an implementation among multiple objects
-	\item we need to map orthogonal class hierarchies
-\end{itemize}
 
 \subsection{Composite}
 The composite pattern is used to group objects into tree structures to represent whole-part hierarchies. This pattern lets clients treat individual objects and compositions of objects uniformly. \cite{sourcemaking}
 
 \subsection{Pluggable Adapter}
-TODO
+The pluggable adapter allows a system to be plugged in. It lets us incorporate a class into
+existing systems that expected different interfaces.
+
+We implemented the pluggable Adapter to create an abstraction layer between our application and
+the chosen NoSQL database. This means that any database which supports the set of CRUD operations
+defined in our interface can be used by just implementing the required hooks in the pluggable
+adapter.
+
+\begin{lstlisting}[language=Python]
+class DocumentStore(ABC):
+
+	@abstractmethod
+	def _save(self, name: str, _list: List[dict]) -> None:
+		...
+	
+	def save_pipeline(self, name: str, pipeline_memento: PipelineMemento) -> None:
+		config_memento_list = self._extract_config_memento_list(pipeline_memento)
+		self._save(name, config_memento_list)
+
+class DynamoStore(DocumentStore):
+
+	def __init__(self):
+		self.store = dynamo
+	
+	def _save(self, name: str, _list: List[dict]) -> None:
+		table = self.store.tables['mementos']
+		table.put_item(Item={
+			'type': name,
+			'config': _list
+		})
+\end{lstlisting}
 
 \section{Behavioural}
 In software engineering, behavioural design patterns are design patterns that identify common communication patterns between objects and realize these patterns. By doing so, these patterns increase flexibility in carrying out this communication. \cite{sourcemaking}
@@ -57,8 +100,75 @@ Steps:
 	\item Ask originator to recreate its previous state using this memento.
 \end{itemize}
 
+We used the Memento design pattern to capture the pipeline state. These mementos were then stored in
+a NoSQL database which allowed to us restore to such state an any stage.
+
+\begin{lstlisting}[language=Python]
+class Pipeline(PipelineBase):
+
+	def set_memento(self, memento: PipelineMemento) -> None:
+		self.config = memento.config
+	
+	def create_memento(self) -> PipelineMemento:
+		memento = PipelineMemento()
+		memento.config = self.config
+		return memento
+		
+class PipelineMemento:
+
+	@property
+	def config(self) -> List[ConfigMemento]:
+		return self._config
+	
+	@config.setter
+	def config(self, value: List[ConfigMemento]) -> None:
+		self._config = value
+
+class ConfigMemento():
+
+	@property
+	def config(self) -> Optional[Dict[str, Any]]:
+		return self._config or None
+	
+	@config.setter
+	def config(self, value: Dict[str, Any]) -> None:
+		self._config = value
+\end{lstlisting}
+
 \subsection{State}
 The state pattern allows an object to change it's behaviour when it changes it's internal state. The main object is called the context and this is the object that keeps the state. When the state needs to be changed the state currently being ran can update that state of the context.
+
+\subsection{Strategy}
+Define a family of algorithms, encapsulate each one, and make them interchangeable. Strategy lets the
+algorithm vary independently from clients that use it~\citep{OODesign}
+
+We used the Strategy design pattern to add encryption to text.
+
+
+\begin{lstlisting}[language=Python]
+class Encryptor(ABC):
+
+	@abstractmethod
+	def encrypt(self, text: str) -> bytes:
+		...
+
+class FernetEncryptor(Encryptor):
+
+	def __init__(self) -> None:
+		self._key = Fernet.generate_key()
+		self._suite = Fernet(self._key)
+
+	def encrypt(self, text: str) -> bytes:
+		return self._suite.encrypt(text.encode())
+
+class Encryption:
+
+	def __init__(self, encryptor: Encryptor) -> None:
+		self._encryptor = encryptor
+
+	def encrypt(self, text: str) -> bytes:
+		return self._encryptor.encrypt(text)
+\end{lstlisting}
 
 \subsection{Visitor}
 The visitors purpose is to abstract functionality that can be applied to an aggregate hierarchy of \'Element\' objects. \cite{sourcemaking} This allows the operations to be put into their own class which stops polluting the objects class.
@@ -66,6 +176,34 @@ The visitors purpose is to abstract functionality that can be applied to an aggr
 	\item The visitor asks the element to accept it's visit.
 	\item The element accepts and passes itself to the visitors visit method.
 \end{itemize}
+
+We implemented the Visitor design pattern to add functionality to our json requests.
+
+\begin{lstlisting}[language=Python]
+class JsonVisitor(ABC):
+
+	@abstractmethod
+	@overload
+	def visit(self, visitable: JsonRequest) -> str:
+		...
+
+class Visitable(ABC):
+
+	@abstractmethod
+	def accept(self, visitor: JsonVisitor) -> None:
+		...
+	
+class JsonRequest(Visitable):
+	
+	def accept(self, visitor: JsonVisitor) -> None:
+		self._text = visitor.visit(self)
+
+class JsonSanitizer(JsonVisitor):
+
+	@overload
+	def visit(self, json_request: JsonRequest) -> str:
+		return str(json.loads(json_request.text))
+\end{lstlisting}
 
 \section{Architectural}
 Architectural patterns are similar to software design pattern but with a broader scope. The architectural patterns address various issues in software engineering, such as computer hardware performance limitations, high availability and minimization of a business risk. Architectural patterns have often been implemented within software frameworks such as Apache Tomcat and Glassfish.
