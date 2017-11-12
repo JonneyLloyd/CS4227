@@ -4,5 +4,5 @@ from abc import ABC, abstractmethod
 class Visitable(ABC):
 
     @abstractmethod
-    def accept(self, visitor: 'JsonVisitor') -> None:
+    def accept(self, visitor: 'JsonKeySanitizer') -> None:
         ...
