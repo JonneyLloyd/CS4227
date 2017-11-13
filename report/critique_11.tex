@@ -1,2 +1,13 @@
 \chapter{Critique}
+
+
 % Visitor - requires support for mutability since it cannot return values?
+
+Overall, we believe that our use of architecture and design patterns supported quality attributes at a local level. The interceptor architectural pattern supported extensibility with users being able to add, change and remove their own services without any change to the framework architecture or implementation. The interceptor pattern helps to decouple programmers who write client side code from progammers who are responsible for developing application logic. Our implementation of the architectural pattern also suports supports layer symmerty, the ability to introduce symmetrical interceptors for related events exposed by the concrete framework. In our framework, the client can define multiple build interceptors that could support the building of code for different versions/platforms etc.
+
+
+
+In comparison to other software deployment frameworks (e.g. Jenkins), there are many ways in which our framework can be extended to support additional features. Load balancing could be utilised during the deployment process to distribute work load over a number of machines, for example, run the NoSQL database on one machine, builds and testing on other machines etc.
+
+
+The client side implementation for the framework only supports the Linux operating system. This is due to linux commands baked into the implementation, which is suitable given the time contraints of the project. Given more time for implementation of the client side, more feature-rich Python libraries could be substituted with linux commands to make the client side implementation for platform indepenedent. For a client's perspective, this probably would not be much of an issue if all of their testing and deployment machines were Linux based. The Spur Python library was used to run bash commands in Python. This library was suitable in that it was simple to use, but a number of issues arose when trying to create and manage virtual environments.

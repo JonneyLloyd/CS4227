@@ -69,4 +69,14 @@ Ansible and Chef are examples of configuration management tools. Both tools achi
 
 
 \section{Tactics to Support Architectural Use Cases}
-TODO
+
+Any software system design consists of a collection of decisions. A tactic is a design decision that influences the control of a quality attribute response. A collection of tactics are called an architectural strategy. For example, an architect might employ rendundancy and synchronization to support availability in a software system. \cite{sw-arch-2}
+
+\subsection{Modifiability}
+Modifiability is the time and cost associated with implementing, testing and deploying changes to a software system. Restricting modifications to a small set of modules will generally reduce the modification cost. During design, we assigned responsiblities to modules such that anticipated changes would be limited in scope. Given the nature of a software framework, all of the framework-side implementation is non-modifiable by the client. This also helps to prevent ripple effects, the necessity of making changes to modules after a modification. The use of configuration files for the interceptors also localized the changes needed when configuring the deployment of a application.
+
+\subsection{Portability}
+We used the Python language for the implementation of the code deployment framework. Python is a widely used interpreted language that emphasizes code readability. It features a dynamic type system and supports object-orientated programming. Python comes preinstalled on most Linux distributions and python interpreters are available for many operating systems, allowing Python code to run on a wide variety of systems. The use of virtual environments and the Pip package manager during testing and deployment allowed us to simplify dependency management, making it very easy to move our software from one environment to another.
+
+\subsection{Extensibility and Flexibility}
+The interceptor pattern implements serveral tactics to support extensibility in a software system. By customising and configuring interceptor and dispatcher interfaces, users of a concrete framework can add, change and remove services without knowledge of the concrete framework architecture or implementation. In the case of our code deployment framework, users can add interceptors for various stages in sourcing, building, deploying and storing application code. Interceptors can be added transparently without affecting existing application code becuase they are decoupled from application behaviour.

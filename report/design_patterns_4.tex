@@ -1,7 +1,6 @@
 \chapter{Design Patterns}
 TODO context and consequences and support for scenario.
-TODO generic factory, command
-TODO code snippet of Generic Factory Method, Composite, Command, State, Interceptor
+TODO code snippet of Interceptor
 
 \section{Creational}
 Creational design patterns are design patterns that deal with object creation
@@ -310,7 +309,7 @@ class Encryption:
 \end{lstlisting}
 
 \subsection{Visitor}
-The visitors purpose is to abstract functionality that can be applied to an aggregate hierarchy of \'Element\' objects. \cite{sourcemaking} This allows the operations to be put into their own class which stops polluting the objects class.
+The visitors purpose is to abstract functionality that can be applied to an aggregate hierarchy of ``Element'' objects. \cite{sourcemaking} This allows the operations to be put into their own class which stops polluting the objects class.
 \begin{itemize}
 	\item The visitor asks the element to accept it's visit.
 	\item The element accepts and passes itself to the visitors visit method.
@@ -337,12 +336,12 @@ class JsonSanitizer(JsonVisitor):
 class Visitable(ABC):
 
 	@abstractmethod
-	def accept(self, visitor: JsonSanitizer) -> None:
+	def accept(self, visitor: JsonVisitor) -> None:
 		...
 
 class JsonRequest(Visitable):
-	
-	def accept(self, visitor: JsonSanitizer) -> None:
+
+	def accept(self, visitor: JsonVisitor) -> None:
 		self._text = visitor.visit(self)
 
 \end{lstlisting}
@@ -350,8 +349,8 @@ class JsonRequest(Visitable):
 \section{Architectural}
 Architectural patterns are similar to software design pattern but with a broader scope. The architectural patterns address various issues in software engineering, such as computer hardware performance limitations, high availability and minimization of a business risk. Architectural patterns have often been implemented within software frameworks such as Apache Tomcat and Glassfish.
 
-"\textit{Architecture patterns help define the basic characteristics and behavior of an application. For example, some architecture patterns naturally lend themselves toward highly scalable applications,
-whereas other architecture patterns naturally lend themselves toward applications that are highly agile.}" \citep{patterns}
+``\textit{Architecture patterns help define the basic characteristics and behavior of an application. For example, some architecture patterns naturally lend themselves toward highly scalable applications,
+whereas other architecture patterns naturally lend themselves toward applications that are highly agile.}'' \citep{patterns}
 
 \subsection{Interceptor}
 The Interceptor is used for developing frameworks that can be extended transparently, allowing out-of-band services to register with the framework using predefined interfaces. The framework creates  a dispatched and context object. The client creates a concrete interceptor from the interface. The client attaches the interceptor to the dispatcher. When an event occurs in the framework it will pass the context object to the dispatcher which will iterate all registered interceptor, using the observer design pattern method. The context object is passed to the interceptor where the client can then access the internals of the framework.
@@ -384,8 +383,8 @@ class AppFactory(object):
         api.init_app(app)
         dynamo.init_app(app)
         dynamo.create_all()
-        
-        
+
+
 class ServerConfig:
     APP_NAME = 'Pipeline'
     APP_PORT = 80

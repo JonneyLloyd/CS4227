@@ -62,7 +62,7 @@ class LocalDeployInterceptor(DeployInterceptor[LocalDeployConfig]):
 
         return is_valid_path
 
-    def _remove_existing_build(self):
+    def _remove_existing_build(self) -> None:
         """ If extracting a packaged build, we want to make sure the existing unpackaged
             build in the same directory is not present """
         local_shell = spur.LocalShell()
