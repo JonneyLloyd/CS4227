@@ -19,17 +19,19 @@ def main() -> None:
       |-- pkg_dir
       |-- deploy_dir
 
-    Make sure to replace "jay" in path configs below with your username
+    Make sure to replace path_prefix in path configs below
     """
+
+    path_prefix = '/home/jay'
 
     pipeline = Pipeline()
 
-    lsrc_config = LocalSourceConfig('/home/jay/fw_test/src_dir/src_japp', '/home/jay/fw_test/pre_build_dir')
-    build_config = PythonBuildConfig('/home/jay/fw_test/pre_build_dir/src_japp', '/home/jay/fw_test/build_dir',
+    lsrc_config = LocalSourceConfig(path_prefix + '/fw_test/src_dir/src_japp', path_prefix + '/fw_test/pre_build_dir')
+    build_config = PythonBuildConfig(path_prefix + '/fw_test/pre_build_dir/src_japp', path_prefix + '/fw_test/build_dir',
                                      'build_japp')
-    pkg_config = ZipPackageConfig('/home/jay/fw_test/build_dir', 'build_japp', '/home/jay/fw_test/pkg_dir/', 'zip')
-    deploy_config = LocalDeployConfig('/home/jay/fw_test/pkg_dir/build_japp.zip', 'build_japp', '/home/jay/fw_test/build_dir',
-                                      ['/home/jay/fw_test/build_dir/build_japp/app/run.py'], packaged=False)
+    pkg_config = ZipPackageConfig(path_prefix + '/fw_test/build_dir', 'build_japp', path_prefix + '/fw_test/pkg_dir/', 'zip')
+    deploy_config = LocalDeployConfig(path_prefix + '/fw_test/pkg_dir/build_japp.zip', 'build_japp', path_prefix + '/fw_test/build_dir',
+                                      [path_prefix + '/fw_test/build_dir/build_japp/app/run.py'], packaged=False)
 
     lsrc_interceptor = LocalSourceInterceptor()
     lsrc_interceptor.config = lsrc_config

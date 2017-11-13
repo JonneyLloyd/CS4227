@@ -102,7 +102,7 @@ class LocalDeployInterceptor(DeployInterceptor[LocalDeployConfig]):
         local_shell = spur.LocalShell()
         for script in self.config.script_list:
             try:
-                local_shell.run(['sh', '-c', 'cd ' + self.config.venv_bin_path + '; python3 ' + script])
+                local_shell.spawn(['sh', '-c', 'cd ' + self.config.venv_bin_path + '; nohup ./python3 ' + script + '&'])
                 logging.info('local_deploy_interceptor: Executed script: ' + script)
             except spur.RunProcessError:
                 logging.error('local_deploy_interceptor: Failed to execute script: ' + script)
