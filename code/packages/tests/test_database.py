@@ -103,3 +103,28 @@ class Tests(TestCase):
         assert dummy_pipeline.config[0].config.__dict__ == restored_pipeline.config[0].config.__dict__
 
         store.delete_pipeline('dummy_pipeline')
+
+    def test_pipeline_save_restore(self):
+        server = PipelineServer(TestConfig())
+        server.register_module(DummyConfig, DemoInterceptor)
+
+        dummy_config = DummyConfig()
+        dummy_config.dummy = 'random value'
+        demo_interceptor = DemoInterceptor()
+        demo_interceptor.config = dummy_config
+
+        pipeline_manager = PipelineManager()
+        dummy_pipeline = pipeline_manager.create_pipeline('dummy_pipeline')
+        dummy_pipeline.config = [demo_interceptor]
+
+        pipeline_manager.save_pipeline_to_database('dummy_pipeline', dummy_pipeline)
+
+        restored_pipeline = pipeline_manager.restore_pipeline_from_database('dummy_pipeline')
+
+        assert dummy_pipeline.config[0].config.__dict__ == restored_pipeline.config[0].config.__dict__
+        assert dummy_pipeline.config[0].config == restored_pipeline.config[0].config
+        assert dummy_pipeline.config[0] == restored_pipeline.config[0]
+        assert dummy_pipeline == restored_pipeline
+
+        pipeline_manager.delete_pipeline_from_database('dummy_pipeline')
+

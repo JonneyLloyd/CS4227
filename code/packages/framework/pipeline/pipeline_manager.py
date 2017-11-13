@@ -1,5 +1,7 @@
 from threading import Thread
 
+from framework.store import StoreFactory
+
 from ..pipeline import Pipeline, ConfigMementoList
 from ..util import overload
 from ..config import ConfigModel
@@ -9,6 +11,7 @@ class PipelineManager(object):
         def __init__(self):
             self._pipelines = {}
             self._pipeline_threads = {}
+            self._store = StoreFactory.create_store()
 
         # Attach an inteceptor to a named pipeline
         def attach_interceptor(self, name: str, interceptor: 'Interceptor') -> None:
@@ -40,6 +43,17 @@ class PipelineManager(object):
             if not self._pipeline_threads.get(name, None):
                 self._pipeline_threads[name] = Thread(target=self._pipelines[name].execute)
             self._pipeline_threads[name].start()
+
+        def save_pipeline_to_database(self, name: str, pipeline: Pipeline) -> None:
+            memento = pipeline.create_memento()
+            self._store.save_pipeline(name, memento)
+
+        def restore_pipeline_from_database(self, name) -> Pipeline:
+            memento = self._store.restore_pipeline(name)
+            return self.restore_from_memento(name, memento)
+
+        def delete_pipeline_from_database(self, name) -> None:
+            self._store.delete_pipeline(name)
 
     # The PipelineManager is a singleton that manages multiple Pipelines.
     instance = None
