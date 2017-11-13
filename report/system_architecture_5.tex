@@ -1,6 +1,13 @@
 \chapter{Architecture}
 % TODO make diagrams more readable, discussion?
 
+  The framework has been implemented as a 3-tier architecture. This allowed us to easily
+  separate responsibilities and minimise coupling. The architecture focuses on allowing
+  third party integrations easily with the use of the interceptor architectural pattern.
+  To make it easy for clients to use the framework, a server is supplied which exposes
+  a REST API. A pluggable adapter is used in order to allow the integration of other
+  database systems which is an important feature.
+
   \section{Architectural Diagram}
   TODO
 
