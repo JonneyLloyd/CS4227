@@ -1,6 +1,6 @@
 \chapter{Architecture}
 % TODO make diagrams more readable, discussion?
-
+  \vspace{-2em}
   The framework has been implemented as a 3-tier architecture. This allowed us to easily
   separate responsibilities and minimise coupling. The architecture focuses on allowing
   third party integrations easily with the use of the interceptor architectural pattern.
@@ -9,6 +9,10 @@
   database systems which is an important feature.
 
   \section{Architectural Diagram}
+  \begin{figure}[H]
+   \includegraphics[width = .8\linewidth]{diagrams/architecture_component.png}
+   \caption{Pipeline Component Diagram of Source Interceptor Architectural Perspective}
+  \end{figure}
   Clients can integrate on two levels. Clients can attach to dispatcher directly themselves or
   clients can register their modules. The framework then runs a flask REST server.
   A user can assemble their own pipeline via REST or a GUI. The framework in in charge or creating
@@ -26,7 +30,7 @@
     \begin{figure}[H]
         \hspace{-4em}
         \includegraphics[width = 1.2\linewidth]{diagrams/architecture_classes.png}
-        \caption{Architecture Class Diagram}
+        \caption{Class Diagram}
         \label{fig:architecture_classes}
       \end{figure}
 
@@ -39,5 +43,3 @@
 	   	\includegraphics[width = 1.2\linewidth]{diagrams/sequence_diagram.png}
 	   	\caption{Pluggable Adapter Sequence Diagram}
 	   \end{figure}
-
-TODO structural diagram
