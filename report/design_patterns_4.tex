@@ -336,12 +336,12 @@ class JsonSanitizer(JsonVisitor):
 class Visitable(ABC):
 
 	@abstractmethod
-	def accept(self, visitor: JsonSanitizer) -> None:
+	def accept(self, visitor: JsonVisitor) -> None:
 		...
 
 class JsonRequest(Visitable):
 
-	def accept(self, visitor: JsonSanitizer) -> None:
+	def accept(self, visitor: JsonVisitor) -> None:
 		self._text = visitor.visit(self)
 
 \end{lstlisting}
