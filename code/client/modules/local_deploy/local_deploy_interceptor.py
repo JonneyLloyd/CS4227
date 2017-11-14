@@ -1,7 +1,8 @@
 import logging
 import os.path
-from shutil import unpack_archive
 import spur
+import subprocess, signal
+from shutil import unpack_archive
 from framework.interceptor import DeployInterceptor
 from framework.context import DeployContext
 from . import LocalDeployConfig
@@ -102,6 +103,13 @@ class LocalDeployInterceptor(DeployInterceptor[LocalDeployConfig]):
         local_shell = spur.LocalShell()
         for script in self.config.script_list:
             try:
+                p = subprocess.Popen(['ps', '-x'], stdout=subprocess.PIPE)
+                out, err = p.communicate()
+                for line in out.splitlines():
+                    if ('./python3 ' + script) in str(line):
+                        # kill any running instances
+                        pid = int(line.split(None, 1)[0])
+                        os.kill(pid, signal.SIGKILL)
                 local_shell.spawn(['sh', '-c', 'cd ' + self.config.venv_bin_path + '; nohup ./python3 ' + script + '&'])
                 logging.info('local_deploy_interceptor: Executed script: ' + script)
             except spur.RunProcessError:
