@@ -19,7 +19,8 @@ class LocalDeployInterceptor(DeployInterceptor[LocalDeployConfig]):
             if self.config.packaged and self._validate_path(self.config.package_path, True):
                 """ If packaged, copy packaged build to deploy directory and extract """
                 if self._validate_path(self.config.unpacked_build, False):
-                    self._remove_existing_build()
+                    self.remove_existing_files(self.config.unpacked_build, is_file=False)
+                    self.remove_existing_files(self.config.unpacked_build + '.*', is_file=True)
                     if self._copy_packaged_build() and self._extract_build():
                         logging.info('local_deploy_interceptor: Success: pre_deploy for extracted build: ' + self.config.build_name)
                         pre_deploy_success = True
@@ -62,16 +63,6 @@ class LocalDeployInterceptor(DeployInterceptor[LocalDeployConfig]):
             logging.error('local_deploy_interceptor: Could not locate path: ' + path)
 
         return is_valid_path
-
-    def _remove_existing_build(self) -> None:
-        """ If extracting a packaged build, we want to make sure the existing unpackaged
-            build in the same directory is not present """
-        local_shell = spur.LocalShell()
-        try:
-            local_shell.run(['sh', '-c', 'rm -r ' + self.config.unpacked_build])
-            logging.info('local_deploy_interceptor: Removed existing build in build_dir before extracting packaged build')
-        except spur.RunProcessError:
-            logging.error('local_deploy_interceptor: Failed to remove existing build')
 
     def _copy_packaged_build(self) -> bool:
         copy_success = True

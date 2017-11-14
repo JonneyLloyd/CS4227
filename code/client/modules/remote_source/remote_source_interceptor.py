@@ -21,12 +21,14 @@ class RemoteSourceInterceptor(SourceInterceptor[RemoteSourceConfig]):
         else:
             logging.error('remote_source_interceptor: Failure: on_source remote path validation: ' + self.config.remote_path)
 
-        if source_success and self._copy_remote_source():
-            logging.info('remote_source_interceptor: Success: on_source for remote path: ' + self.config.remote_path)
-            context.set_state({'on_source': 'successful'})
-        else:
-            logging.error('remote_source_interceptor: Fail: on_source for remote path: ' + self.config.remote_path)
-            context.set_state({'on_source': 'failed'})
+        if source_success:
+            self.remove_existing_source(self.config.pre_build_path + '/' + os.path.basename(self.config.remote_path))
+            if self._copy_remote_source():
+                logging.info('remote_source_interceptor: Success: on_source for remote path: ' + self.config.remote_path)
+                context.set_state({'on_source': 'successful'})
+            else:
+                logging.error('remote_source_interceptor: Fail: on_source for remote path: ' + self.config.remote_path)
+                context.set_state({'on_source': 'failed'})
 
     def _validate_path(self, path: str, is_file: bool) -> bool:
         """ The is_file flag determines if validating a file or directory path """

@@ -21,12 +21,14 @@ class GithubSourceInterceptor(SourceInterceptor[GithubSourceConfig]):
             logging.error('github_source_interceptor: Failure: on_source path validation')
             source_success = False
 
-        if source_success and self._clone_repo():
-            logging.info('github_source_interceptor: Success: on_source GitHub repo ' + self.config.git_repo)
-            context.set_state({'on_source': 'successful'})
-        else:
-            logging.error('github_source_interceptor: Failure: on_source GitHub repo ' + self.config.git_repo)
-            context.set_state({'on_source': 'failed'})
+        if source_success:
+            self.remove_existing_source(self.config.pre_build_path + '/' + self.config.git_repo)
+            if self._clone_repo():
+                logging.info('github_source_interceptor: Success: on_source GitHub repo ' + self.config.git_repo)
+                context.set_state({'on_source': 'successful'})
+            else:
+                logging.error('github_source_interceptor: Failure: on_source GitHub repo ' + self.config.git_repo)
+                context.set_state({'on_source': 'failed'})
 
     def _validate_path(self, path: str, is_file: bool) -> bool:
         """ The is_file flag determines if validating a file or directory path """

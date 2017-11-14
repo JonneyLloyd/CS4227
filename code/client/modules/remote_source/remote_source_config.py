@@ -17,8 +17,8 @@ class RemoteSourceConfig(ConfigModel):
             remote_hostname: Hostname of remote host
             ssh_key_path: Absolute path to SSH private key
         """
-        self._remote_path = remote_path
-        self._pre_build_path = pre_build_path
+        self._remote_path = remote_path.rstrip('\/')
+        self._pre_build_path = pre_build_path.rstrip('\/')
         self._remote_username = remote_username
         self._remote_hostname = remote_hostname
         self._ssh_key_path = ssh_key_path
@@ -31,7 +31,7 @@ class RemoteSourceConfig(ConfigModel):
 
     @remote_path.setter
     def remote_path(self, remote_path: str) -> None:
-        self._remote_path = remote_path
+        self._remote_path = remote_path.rstrip('\/')
 
     @attribute_property('pre_build_path')
     def pre_build_path(self) -> str:
@@ -39,7 +39,7 @@ class RemoteSourceConfig(ConfigModel):
 
     @pre_build_path.setter
     def pre_build_path(self, pre_build_path: str) -> None:
-        self._pre_build_path = pre_build_path
+        self._pre_build_path = pre_build_path.rstrip('\/')
 
     @attribute_property('remote_username')
     def remote_username(self) -> str:
