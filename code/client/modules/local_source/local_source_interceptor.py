@@ -21,12 +21,14 @@ class LocalSourceInterceptor(SourceInterceptor[LocalSourceConfig]):
             logging.error('local_source_interceptor: Failure: on_source path validation')
             source_success = False
 
-        if source_success and self._copy_local_source():
-            logging.info('local_source_interceptor: Success: on_source for local source')
-            context.set_state({'on_source': 'successful'})
-        else:
-            logging.error('local_source_interceptor: Failure: on_source for local source')
-            context.set_state({'on_source': 'failed'})
+        if source_success:
+            self.remove_existing_source(self.config.pre_build_path + '/' + os.path.basename(self.config.source_path))
+            if self._copy_local_source():
+                logging.info('local_source_interceptor: Success: on_source for local source')
+                context.set_state({'on_source': 'successful'})
+            else:
+                logging.error('local_source_interceptor: Failure: on_source for local source')
+                context.set_state({'on_source': 'failed'})
 
     def _validate_path(self, path: str) -> bool:
         is_valid_path = True

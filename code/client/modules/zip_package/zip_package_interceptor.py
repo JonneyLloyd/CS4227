@@ -16,6 +16,7 @@ class ZipPackageInterceptor(PackageInterceptor[ZipPackageConfig]):
         context.set_state({'pre_package': 'in progress', 'on_package': 'waiting'})
         if self._validate_path(self.config.build_path) and \
            self._validate_path(self.config.package_root):
+            self.remove_existing_package(self.config.package_path + '.' + self.config.archive_format)
             logging.info('zip_package_interceptor: Success: pre_package for build: ' + self.config.build_name)
             context.set_state({'pre_package': 'successful', 'on_package': 'waiting'})
         else:

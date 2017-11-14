@@ -26,13 +26,14 @@ class PythonBuildInterceptor(BuildInterceptor[PythonBuildConfig]):
 
     def pre_build(self, context: BuildContext) -> None:
         context.set_state({'pre_build': 'in progress', 'on_build': 'waiting'})
-        if self._validate_path(self.config.pre_build_path) \
-           and self._create_build_dir() and self._copy_source_for_build():
-            logging.info('python_build_interceptor: Success: pre_build for build ' + self.config.build_name)
-            context.set_state({'pre_build': 'successful', 'on_build': 'waiting'})
-        else:
-            logging.error('python_build_interceptor: Failure: pre_build for build ' + self.config.build_name)
-            context.set_state({'pre_build': 'failed', 'on_build': 'waiting'})
+        if self._validate_path(self.config.pre_build_path):
+            self.remove_existing_build(self.config.build_path)
+            if self._create_build_dir() and self._copy_source_for_build():
+                logging.info('python_build_interceptor: Success: pre_build for build ' + self.config.build_name)
+                context.set_state({'pre_build': 'successful', 'on_build': 'waiting'})
+            else:
+                logging.error('python_build_interceptor: Failure: pre_build for build ' + self.config.build_name)
+                context.set_state({'pre_build': 'failed', 'on_build': 'waiting'})
 
     def on_build(self, context: BuildContext) -> None:
         context.set_state({'pre_build': 'successful', 'on_build': 'in progress'})

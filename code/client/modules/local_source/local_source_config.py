@@ -13,8 +13,8 @@ class LocalSourceConfig(ConfigModel):
             source_path: Absolute path to local source directory
             pre_build_path: Absolute path to directory in which to copy source
         """
-        self._source_path = source_path
-        self._pre_build_path = pre_build_path
+        self._source_path = source_path.rstrip('\/')
+        self._pre_build_path = pre_build_path.rstrip('\/')
 
     @attribute_property('source_path')
     def source_path(self) -> str:
@@ -22,7 +22,7 @@ class LocalSourceConfig(ConfigModel):
 
     @source_path.setter
     def source_path(self, source_path: str) -> None:
-        self._source_path = source_path
+        self._source_path = source_path.rstrip('\/')
 
     @attribute_property('pre_build_path')
     def pre_build_path(self) -> str:
@@ -30,4 +30,4 @@ class LocalSourceConfig(ConfigModel):
 
     @pre_build_path.setter
     def pre_build_path(self, pre_build_path: str) -> None:
-        self._pre_build_path = pre_build_path
+        self._pre_build_path = pre_build_path.rstrip('\/')
