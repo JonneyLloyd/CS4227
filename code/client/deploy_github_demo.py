@@ -1,5 +1,5 @@
 from framework.pipeline.pipeline import Pipeline
-from modules.local_source import LocalSourceInterceptor, LocalSourceConfig
+from modules.github_source import GithubSourceInterceptor, GithubSourceConfig
 from modules.python_build import PythonBuildInterceptor, PythonBuildConfig
 from modules.zip_package import ZipPackageInterceptor, ZipPackageConfig
 from modules.local_deploy import LocalDeployInterceptor, LocalDeployConfig
@@ -9,32 +9,35 @@ def main() -> None:
     """
     The following directory structure should be present on a UNIX machine before
     running the deploy demo:
-    |-- /home/$USER/fw_test
-      |-- src_dir
-        |-- src_japp (this directory can be found in CS4227/code/src_japp)
-          |-- requirements.txt
-          |-- run.py
+    |-- /deployments
       |-- pre_build_dir
       |-- build_dir
       |-- pkg_dir
       |-- deploy_dir
 
-    Make sure to replace path_prefix in path configs below
+    The code source must also be available locally with a similar structure:
+    |-- some_dir
+      |-- src_japp (this directory can be found in CS4227/code/src_japp)
+        |-- requirements.txt
+        |-- run.py
+
     """
 
-    path_prefix = '/home/jay'
+    path_prefix = '/deployments'
 
     pipeline = Pipeline()
 
-    lsrc_config = LocalSourceConfig(path_prefix + '/fw_test/src_dir/src_japp', path_prefix + '/fw_test/pre_build_dir')
-    build_config = PythonBuildConfig(path_prefix + '/fw_test/pre_build_dir/src_japp', path_prefix + '/fw_test/build_dir',
+    gsrc_config = GithubSourceConfig(f'{path_prefix}/pre_build_dir', 'OliverGavin', 'test_flask_app_github', 'master',
+                                     '/home/oligavin/.ssh/gitlab_id_rsa')
+    build_config = PythonBuildConfig(f'{path_prefix}/pre_build_dir/test_flask_app_github',
+                                     f'{path_prefix}/build_dir',
                                      'build_japp')
-    pkg_config = ZipPackageConfig(path_prefix + '/fw_test/build_dir', 'build_japp', path_prefix + '/fw_test/pkg_dir/', 'zip')
-    deploy_config = LocalDeployConfig(path_prefix + '/fw_test/pkg_dir/build_japp.zip', 'build_japp', path_prefix + '/fw_test/build_dir',
-                                      [path_prefix + '/fw_test/build_dir/build_japp/app/run.py'], packaged=False)
+    pkg_config = ZipPackageConfig(f'{path_prefix}/build_dir', 'build_japp', f'{path_prefix}/pkg_dir/', 'zip')
+    deploy_config = LocalDeployConfig(f'{path_prefix}/pkg_dir/build_japp.zip', 'build_japp', f'{path_prefix}/build_dir',
+                                      [f'{path_prefix}/build_dir/build_japp/app/run.py'], packaged=False)
 
-    lsrc_interceptor = LocalSourceInterceptor()
-    lsrc_interceptor.config = lsrc_config
+    gsrc_interceptor = GithubSourceInterceptor()
+    gsrc_interceptor.config = gsrc_config
 
     build_interceptor = PythonBuildInterceptor()
     build_interceptor.config = build_config
@@ -46,7 +49,7 @@ def main() -> None:
     deploy_interceptor.config = deploy_config
 
     lsrc_dispatcher = pipeline.source_dispatcher
-    lsrc_dispatcher.register(lsrc_interceptor)
+    lsrc_dispatcher.register(gsrc_interceptor)
 
     build_dispatcher = pipeline.build_dispatcher
     build_dispatcher.register(build_interceptor)
